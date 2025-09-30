@@ -1,6 +1,6 @@
 ---
-title: "Mi título de Proyecto Personal"
-author: "Mi nombre y apellidos"
+title: "Desigualdades regionales y sectoriales en la compensación y horas trabajadas en la UE"
+author: "Alejandro Delgado Valera"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -143,6 +143,10 @@ Utilizaremos la metodología de desarrollo CRISP-DM (Cross Industry Standard Pro
 
 <!-- Una parte de esta fase incluye la descripción del objeto del proyecto y sus objetivos, como eso ya se ha presentado anteriormente en la memoria no se repite aquí. Otra parte que si se incluye es describir lo que se ha hecho para  la búsqueda de datos, las fuentes consultadas, entrevistas, lecturas bibliográficas, etc.. señalando las incidencias/dificultades encontradas, así como el análisis de la fiabilidad de la información obtenida. En esta fase no se realiza una descripción detallada de los datos ni pondremos gráficas.  -->
 
+Para la búsqueda del dataset elegido finalmente para la realización de este proyecto, hemos llevado a cabo una serie de pasos.  
+En primer lugar, a través del documento facilitado por el profesor, exploré y contrasté los posibles datasets que aparecían en la tabla dinámica que ofrecía aquellos datasets que cumplían los requisitos relacionados con la temporalidad de las observaciones. Tras consultar con chatgpt, centré mi busqueda en aquellos datasets que tenían un máximo de ≈1 mill. y mínimo 10 mil observaciones. Aquellos datasets que tenían un título que me llamara la atención, se los pasaba al chatgpt para que me diera una breve descripción del mismo. Cuando ya había seleccionado los suficientes, le pedí que hiciera un top con aquellos que considerara más adecuados para el proyecto a realizar, según el temario que se impartiría en la asignatura y que está registrado en el libro de la asignatura que previamente le pasé a este chatbot.  
+Tras haber escrito un dataset previamente en la wiki para registrarlo, sin haber prestado mucha atención a todo las condiciones que este debía cumplir, terminé eligiendo uno que cumplía todos los requisitos expuestos en el documento proporcionado por el profesor. Una vez verificado esto, pasé al siguiente paso de comprensión de los datos elegidos.
+
 * **Comprensión de los datos**. Se analiza la  estructura y organización de los datos obtenidos. Se identifican posible problemas como datos faltantes, outliers o inconsistencias. 
 
 <!-- Identificar y describir con claridad el significado de las variables categóricas existentes (y todos los valores que pueden tomar) y las observaciones (habitualmente valores numéricos). Identificar si los datos están organizados de forma ordenada (tidy), es decir una sola observación por cada fila de la tabla acompañada de variables categóricas o de forma no ordenada, es decir, varias observaciones por cada fila. En este caso,  habitualmente, los valores posibles de una variable categórica se distribuyen como títulos de columnas de la tabla y cada celda de esas columnas incluye una observación. Estudiar la frecuencia (Nº de observaciones) asociadas a las variables categóricas, el tamaño e intervalo temporal de las series temporales (si procede), la distribución del nº de observaciones por regiones, o por otro tipo de desglose de la información (si procede), análisis de los atributos combinados existentes, dados por las combinaciones de variables categóricas que aparecen en el dataset. Analizar en más detalle (si hubiera lugar) como son los datos en la regiones que más me interesan. Identificación de errores, valores ausentes, outliers o cualquier otra incosistencia encontrada. 
@@ -154,6 +158,8 @@ En esta fase, en general, no pondremos gráficos, salvo cosas muy sencillas rela
 El análisis de lo datos realizado para la validación del tema del proyecto personal va en este apartado. 
 
 --> 
+
+
  
 * **Preparación de los datos**. Se realiza limpieza, transformación, combinación y selección/creación de variables relevantes para el análisis
 
