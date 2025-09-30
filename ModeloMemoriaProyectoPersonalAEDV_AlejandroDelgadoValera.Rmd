@@ -1,0 +1,275 @@
+---
+title: "Mi título de Proyecto Personal"
+author: "Mi nombre y apellidos"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    number_sections: true
+---
+
+<!--
+# TRUCOS ÚTILES AL EDITAR UN FICHERO Rmarkdown: 
+(1) TECLAS: CTRL-MAY-1 : EDICIÓN DE CÓDIGO OCUPA/NO OCUPA TODA LA VENTANA
+(2) TECLAS: CTRL-ALT-C : EJECUTA UN CHUNK CUANDO EL CURSOR DEL RATÓN ESTA DENTRO DEL CHUNK (OTRA FORMA ES HACER CLICK EN EL BOTÓN TRIANGULAR VERDE EN LA ESQUINA SUPERIOR DERECHA DEL CHUNK)
+(3) ACTIVAR "knit on Save" PARA COMPILAR AUTOMÁTICAMENTE AL GUARDAR EL ARCHIVO (CTRL-S)
+PARA CREAR UN CHUNK NUEVO USAR BOTÓN VERDE CON UNA "C" EN LA PARTE SUPERIOR DERECHA DE LA VENTANA
+(4) PARA EJECUTAR UNA PORCIÓN DE CÓDIGO O VISUALIZAR EL VALOR DE UNA TABLA/VARIABLE SELECCIONAR EL CÓDIGO CON EL RATÓN Y HACER CTRL-ENTER -->
+
+<!-- Opcionalmente, el formateo de este documento en HTML se puede mejorar usando CSS --> 
+
+```{r,echo=FALSE}
+# OPCIONES POR DEFECTO AL COMPILAR LOS CHUNKS 
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE,
+  cache=FALSE, # ponerlo a TRUE acelera la compilación pues solo recompila los chunks modificados. Es útil al escribir texto con mucho código que tarda tiempo en compilar. Puede fallar cuando unos chunks dependen de otros. En ese caso, o cuando hay errores que no entiendes, borra la carpeta auxiliar que se genera con la extensión "_cache" para obligar a recompilar todo. 
+  echo=FALSE
+)
+```
+
+```{r global, include=FALSE}
+# carga de librerías
+library(DT)
+library(googlesheets4)
+library(kableExtra)
+library(patchwork)
+library(zoo)
+library(MASS)
+library(flexdashboard)
+library(datasets)
+library(highcharter) 
+library(fpp3)
+library(RColorBrewer)
+library(openxlsx)  
+library(leaflet)  
+library(geojsonio)
+library(plotly)
+library(ggplot2)
+library(tidyverse)
+
+# asociamos funciones a determinadas librerías para evitar posibles errores 
+filter <- dplyr::filter # Filtra filas según condiciones
+select <- dplyr::select # Selecciona columnas
+mutate <- dplyr::mutate # Crea o modifica columnas
+arrange <- dplyr::arrange # Ordena filas
+group_by <- dplyr::group_by # Agrupa datos
+summarise <- dplyr::summarise # Resume variables (por ejemplo, con medias, conteos)
+summarize <- dplyr::summarize # Lo mismo que summarise
+rename <- dplyr::rename # Cambia nombres de columnas
+distinct <- dplyr::distinct # Elimina filas duplicadas
+slice<- dplyr::slice # Selecciona filas por posición
+relocate<- dplyr::relocate # Reordena columnas
+
+selectInput <- shiny::selectInput
+```
+
+
+<!-- Todos los proyectos personales tienen que tener un cuadro de mandos (Tema 7 de la asignatura) cuya dirección es similar a la que sigue poniendo tu nº de usuario (en lugar de a2405) y el nombre del Rmd asociado. Los cuadros de mando se alojan en un servidor del DIS y solo se puede acceder a ellos a través de la red de la ULPGC o usando VPN -->
+
+[Cuadro de mandos](http://10.22.143.222:3838/sample-apps/a2405/Dashboard3.Rmd)
+
+
+<!-- Añadir imagen ilustrativa del tema de mi proyecto --> 
+<center>
+<img src="https://ctim.es/Delmond.png" width="60%" />
+</center>
+
+# Introducción
+
+
+<!-- situar el tema en un contexto amplio, destacando su relevancia en la actualidad. Delimitar el problema que se aborda en ese contexto amplio --> 
+
+
+##  Estado actual
+
+<!-- Explicar conceptos claves relacionados con el tema que se aborda. Comentar estudios/resultados precedentes. Identificación de elementos/circunstancias que justifican la realización del estudio sobre este tema. Relevancia y oportunidad de abordar el tema.-->
+
+## Motivación
+
+<!-- Descripción de la motivación que te ha llevado a elegir este tema de trabajo que puede incluir intereses personales/sociales/profesionales --> 
+
+## Objetivos
+
+<!-- Expresa de forma amplia y global el propósito principal del trabajo. Cuales son sus metas principales -->
+
+# Aportaciones del trabajo
+
+<!-- estas sección se suele escribir al final del trabajo --> 
+
+## Principales aportaciones
+
+<!-- Análisis del significado e implicaciones de los resultados en el contexto del área de estudio. Nuevas perspectivas o enfoques. Actualización del conocimiento existente. Debe estar alineado con los objetivos. Comentar cuadro de mandos como aportación  -->
+
+
+## Alineamiento con los objetivos de desarrollo sostenible
+
+<!-- Hay que rellenar el fichero "ODS.xlsx" con nuestros datos. Si en ChatGPT hacemos la consulta "Relacionar "mi tema de proyecto" con ODS" nos saldrá un borrador de relaciones que podremos usar como base y  perfeccionar. --> 
+
+```{r}
+tb <- read.xlsx("ODS.xlsx") %>%
+  as_tibble()
+tb[is.na(tb)] <- ""
+
+colnames(tb) <- c("ODS","No procede", "Bajo", "Medio","Alto")
+tabla <- kable(tb,caption="Grado de relación del proyecto con los objetivos de desarrollo sostenible (ODS)", 
+                format = "html",
+                table.attr = 'style="width:500px; margin-left: auto; margin-right: auto;"') 
+tabla %>% column_spec(2, extra_css = "text-align: center;") %>%
+          column_spec(3, extra_css = "text-align: center;") %>%
+          column_spec(4, extra_css = "text-align: center;") %>%
+          column_spec(5, extra_css = "text-align: center;")
+```
+
+
+# Desarrollo
+
+
+## Herramientas empleadas
+
+<!-- mencionar y justificar para este trabajo el uso de R, RStudio y las librerías principales utilizadas. Mencionar también el servidor shiny del DIS para desplegar públicamente el cuadro de mandos    --> 
+
+## Metodología
+
+Utilizaremos la metodología de desarrollo CRISP-DM (Cross Industry Standard Process for Data Mining) que es un marco ampliamente utilizado para proyectos de Ciencias de Datos. En la siguiente figura se presenta un diagrama con las diferentes fases de esta metodología que a continuación describimos con más detalle: 
+
+<center>
+<img src="https://ctim.es/AEDV/1200px-CRISP-DM_Process_Diagram1.5x.png" width="40%" />
+<p style="font-size: 14px; color: gray;"><em>Diagrama metodología de desarrollo CRISP-DM</em></p>
+</center>
+
+
+
+* **Comprensión del negocio**. Se plantean los objetivos del proyecto y la búsqueda de información y datos. 
+
+<!-- Una parte de esta fase incluye la descripción del objeto del proyecto y sus objetivos, como eso ya se ha presentado anteriormente en la memoria no se repite aquí. Otra parte que si se incluye es describir lo que se ha hecho para  la búsqueda de datos, las fuentes consultadas, entrevistas, lecturas bibliográficas, etc.. señalando las incidencias/dificultades encontradas, así como el análisis de la fiabilidad de la información obtenida. En esta fase no se realiza una descripción detallada de los datos ni pondremos gráficas.  -->
+
+* **Comprensión de los datos**. Se analiza la  estructura y organización de los datos obtenidos. Se identifican posible problemas como datos faltantes, outliers o inconsistencias. 
+
+<!-- Identificar y describir con claridad el significado de las variables categóricas existentes (y todos los valores que pueden tomar) y las observaciones (habitualmente valores numéricos). Identificar si los datos están organizados de forma ordenada (tidy), es decir una sola observación por cada fila de la tabla acompañada de variables categóricas o de forma no ordenada, es decir, varias observaciones por cada fila. En este caso,  habitualmente, los valores posibles de una variable categórica se distribuyen como títulos de columnas de la tabla y cada celda de esas columnas incluye una observación. Estudiar la frecuencia (Nº de observaciones) asociadas a las variables categóricas, el tamaño e intervalo temporal de las series temporales (si procede), la distribución del nº de observaciones por regiones, o por otro tipo de desglose de la información (si procede), análisis de los atributos combinados existentes, dados por las combinaciones de variables categóricas que aparecen en el dataset. Analizar en más detalle (si hubiera lugar) como son los datos en la regiones que más me interesan. Identificación de errores, valores ausentes, outliers o cualquier otra incosistencia encontrada. 
+
+En esta fase no se realiza procesado de datos salvo el mínimo para obtener la información que se requiere. Tampoco se entra a valorar la calidad de los datos o como habría que procesarlos. En términos médicos, esta sería la fase del diagnóstico donde todavía no se comenta nada del pronóstico del paciente o del tratamiento. Por tanto no se expresan opiniones sobre los datos, solo se exponen tal cual son. 
+
+En esta fase, en general, no pondremos gráficos, salvo cosas muy sencillas relativas a las frecuencias de los datos y cosas de ese tipo, pues los gráficos requieren, en general, selección y procesamiento de datos previo. 
+
+El análisis de lo datos realizado para la validación del tema del proyecto personal va en este apartado. 
+
+--> 
+ 
+* **Preparación de los datos**. Se realiza limpieza, transformación, combinación y selección/creación de variables relevantes para el análisis
+
+<!-- En esta fase, a partir de los resultados de la fase anterior, estudiamos la relevancia y calidad de la información obtenida en la fase anterior de acuerdo con los objetivos del proyecto, si procede seleccionamos/eliminamos variables categóricas o algunas de sus opciones, exponiendo con claridad y justificadamente los atributos combinados (formados por combinaciones de variables categóricas) que vamos a usar en el estudio. Decidimos el intervalo temporal que vamos a usar para  nuestro estudio. Realizamos la limpieza, transformación,  creación de nuevas variables, combinación de tablas,etc... En esta fase pondremos las gráficas que ilustran los datos una vez procesados y seleccionados pero sin usar los modelos que se formulan en la siguiente fase.  --> 
+
+* **Modelado**. Selección y aplicación de los modelos adecuados para analizar los datos 
+
+<!-- Se aplican a los datos los modelos utilizados, como por ejemplo, regresión lineal, modelos ARIMA, matriz de correlación, PCA, etc.. En esta fase se pondrán gráficas sobre el uso de de estos modelos.  --> 
+
+* **Evaluación**. Evaluar si el modelo responde a las preguntas de investigación, comparación con otros métodos 
+
+<!-- Se discuten de forma crítica los resultados obtenidos incluyendo pruebas de evaluación / validación realizadas (si procede) --> 
+
+* **Despliegue**. Comunicación del trabajo en una memoria y diseño y elaboración de un cuadro de mandos para presentar los resultados de forma eficaz y atractiva. 
+
+<!-- El despliegue de este proyecto se realizará a través de la confección de esta memoria y de un cuadro de mandos. --> 
+
+ 
+ <!-- De acuerdo con esta metodología, los resultados se van presentando, discutiendo y validando a lo largo de las fases de **Modelado**, **Evaluación** y **Despliegue** y, por tanto, para mantener una estructura coherente de la memoria, de acuerdo con la aplicación de la  metodología CRISP-DM, no existe en la memoria una sección separada de presentación de resultados.  --> 
+ 
+ 
+ Es importante observar que esta metodología es iterativa, es decir que los resultados obtenidos en algunas de las fases puede afectar al desarrollo de fases anteriores. 
+ 
+ A continuación se describirá en detalle como se han abordado cada una de las fases del desarrollo del proyecto siguiendo esta metodología.
+
+
+## Comprensión del negocio
+
+<!-- desarrollo de esta fase -->
+
+## Comprensión de los datos
+
+<!-- desarrollo de esta fase -->
+
+## Preparación de los datos
+
+<!-- desarrollo de esta fase -->
+
+## Modelado
+
+<!-- desarrollo de esta fase -->
+
+## Evaluación
+
+<!-- desarrollo de esta fase -->
+
+## Despliegue
+
+<!-- desarrollo de esta fase -->
+
+# Conclusiones y trabajo futuro
+
+
+## Conclusiones
+
+<!-- Revisión clara y concisa de los hallazgos más relevantes del estudio, vinculados directamente con los objetivos o hipótesis planteados. Reconocimiento honesto de los puntos débiles o restricciones (por ejemplo, tamaño de muestra reducido, falta de datos, sesgos.  Evitar aquí generalidades de ChatGPT --> 
+
+## Trabajo futuro
+
+<!-- Líneas de trabajo futuro, aspectos pendientes, posibles extensiones. --> 
+
+
+## Anexo. Seguimiento temporal actividades del proyecto  {-} 
+
+
+<!-- Lo primero que hay que hacer es compartir en modo lectura la hoja de cálculo Google Sheet que habremos descargado del Campus Virtual para registrar las sesiones de trabajo. A continuación se sustituirá, debajo, el enlace que figura en la lectura del archivo (read_sheet) por el enlace compartido que has creado. 
+
+ES OBLIGATORIO TENER ACTUALIZADO ESTE APARTADO EN CADA ENTREGA DEL PROYECTO. 
+
+CADA SESIÓN DE TRABAJO SE DEBE REGISTRAR EN LA GOOGLE SHEET EN EL MOMENTO DE REALIZARSE. EN PARTICULAR EN UNA ENTREGA  DEL PROYECTO NO PUEDEN APARECER SESIONES DE TRABAJOS NUEVAS CON FECHAS ANTERIORES A LA ENTREGA ANTERIOR DEL PROYECTO. 
+-->
+
+<!-- 
+IMPORTANTE: La primera vez que ejecutes este chunk desde la consola de R se te pedirá gestionar una autorización para usar una cuenta Google. Es decir, en medio de la ejecución del chunk,  ve a la consola de R y ten en cuenta lo que se te pide. 
+-->
+
+
+```{r}
+gs4_deauth() 
+SeguimientoActividadesProyecto <- read_sheet('https://docs.google.com/spreadsheets/d/1w07FWlS3cwTad0mZa_Tanl-LL32IPEQXUqNPXmslpSs/edit?usp=sharing') %>%
+  as_tibble() 
+```
+
+TOTAL HORAS TRABAJADAS EN EL PROYECTO : `r  round(sum(SeguimientoActividadesProyecto$MINUTES/60),digits=2)`
+
+
+```{r}
+actividades <- c("Introducción","Aportaciones del trabajo","Compresión del negocio","Comprensión de los datos","Preparación de los datos","Modelado","Evaluación","Despliegue","Conclusiones y Trabajo Futuro","Otros")
+p <- SeguimientoActividadesProyecto%>%
+  group_by(ACTIVITY)%>%
+   summarise(
+     HORAS=round(sum(MINUTES)/60,digits = 1)
+   )%>%
+  mutate(ACTIVITY=factor(ACTIVITY,levels=actividades)) %>% 
+  ggplot(aes(ACTIVITY,HORAS)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label=HORAS),size=3,colour = "blue",nudge_y = 0.2)+ 
+  theme(axis.text.x = element_text(angle = 45,hjust=1))+
+  labs(x="",y="HORAS TRABAJADAS",title = "TOTAL HORAS TRABAJADAS EN EL PROYECTO POR ACTIVIDAD")
+
+ggplotly(p)
+  
+ 
+```
+
+
+
+
+**DESGLOSE DETALLADO DE LAS SESIONES DE TRABAJO**
+```{r}
+SeguimientoActividadesProyecto%>% 
+  datatable(
+  options = list(
+    scrollX = TRUE,   # Scroll horizontal
+    scrollY = "400px", # Scroll vertical
+    paging = FALSE     # Desactiva paginación si quieres solo scroll
+  )
+)
+```
