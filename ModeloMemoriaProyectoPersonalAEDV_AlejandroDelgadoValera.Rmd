@@ -46,6 +46,8 @@ library(geojsonio)
 library(plotly)
 library(ggplot2)
 library(tidyverse)
+library(readr)
+library(eurostat)
 
 # asociamos funciones a determinadas librerías para evitar posibles errores 
 filter <- dplyr::filter # Filtra filas según condiciones
@@ -63,6 +65,16 @@ relocate<- dplyr::relocate # Reordena columnas
 selectInput <- shiny::selectInput
 ```
 
+<!---TRAS HABER EJECUTADO EL ARCHIVO guardar_datasets_local.R LEEMOS DESDE LOCAL --->
+```{r, echo=F}
+# LEER EL DATASET QUE HEMOS ALMACENADO EN MEMORIA #
+dataset.name <- "nama_10r_2lp10"
+dataset.original <- read_csv(paste0("data/raw/", dataset.name, ".csv")) %>%
+    as_tibble()
+
+dataset.info <- read_csv(paste0("data/processed/", dataset.name, "_info.csv")) %>% 
+    as_tibble()
+```
 
 <!-- Todos los proyectos personales tienen que tener un cuadro de mandos (Tema 7 de la asignatura) cuya dirección es similar a la que sigue poniendo tu nº de usuario (en lugar de a2405) y el nombre del Rmd asociado. Los cuadros de mando se alojan en un servidor del DIS y solo se puede acceder a ellos a través de la red de la ULPGC o usando VPN -->
 
@@ -103,7 +115,7 @@ selectInput <- shiny::selectInput
 
 ## Alineamiento con los objetivos de desarrollo sostenible
 
-<!-- Hay que rellenar el fichero "ODS.xlsx" con nuestros datos. Si en ChatGPT hacemos la consulta "Relacionar "mi tema de proyecto" con ODS" nos saldrá un borrador de relaciones que podremos usar como base y  perfeccionar. --> 
+<!-- Hay que rellenar el fichero "ODS.xlsx" con nuestros datos. Si en ChatGPT hacemos la consulta "Relacionar "mi tema de proyecto" con ODS" nos saldrá un borrador de relaciones que podremos usar como base y  perfeccionar. 
 
 ```{r}
 tb <- read.xlsx("ODS.xlsx") %>%
@@ -119,7 +131,7 @@ tabla %>% column_spec(2, extra_css = "text-align: center;") %>%
           column_spec(4, extra_css = "text-align: center;") %>%
           column_spec(5, extra_css = "text-align: center;")
 ```
-
+--> 
 
 # Desarrollo
 
@@ -158,6 +170,67 @@ En esta fase, en general, no pondremos gráficos, salvo cosas muy sencillas rela
 El análisis de lo datos realizado para la validación del tema del proyecto personal va en este apartado. 
 
 --> 
+```{r}
+
+```
+
+* **code**: `r dataset.original$code[1]`
+* **title**: `r dataset.original$title[1]`
+* **last.update.of.data**: `r dataset.original$last.update.of.data[1]`
+<!-- * **last.table.structure.change**: `r dataset.original$last.table.structure.change[1]` --> 
+* **data.start**: `r dataset.original$data.start[1]`
+* **data.end**: `r dataset.original$data.end[1]`
+* **values**: `r format(dataset.original$values[1],big.mark = ".")`
+
+Los datos de nuestro dataset están organizados de forma tidy. Los variables categóricas que existen, su significado, y sus valores posibles son:
+
+* **freq**: Frecuencia con la que se toman las observaciones. Tiene un único valor "A", que corresponde a datos anuales.
+
+* **nace_r2**: Rama de actividad económica. Se divide según la clasificación NACE Rev. 2. *Los códigos pueden corresponder a una sección concreta (ej. A, C, F), a un rango de secciones consecutivas indicado con guion (ej. B-E, G-I), o a agrupaciones específicas de varias secciones señaladas con guion bajo (ej. M_N).*  
+Valores posibles: 
+  - TOTAL: Total - todas las actividades NACE  
+  - O-U: Administración pública y defensa; actividades de computación obligatoria; educación; salud humana y servicios sociales; artes, entretenimiento y otros servicios  
+  - O-Q: Administración pública, defensa, educación, actividades sanitarias y de servicios sociales  
+  - B-E: Industria (excepto construcción)  
+  - K-N: Actividades financieras y de seguros; inmobiliarias; profesionales, científicas y técnicas; servicios administrativos 
+  - F: Construcción  
+  - M_N: Actividades profesionales, científicas y técnicas; actividades administrativas y servicios auxiliares
+  - A: Agricultura, silvicultura y pesca  
+  - C: Industria manufacturera  
+  - G-J: Comercio mayorista y minorista; transporte; alojamiento; información y comunicación  
+  - R-U: Artes, entretenimiento y recreación; otros servicios  
+  - G-I: Comercio mayorista y minorista; transporte; alojamiento y servicios de comida  
+  - J: Información y comunicaciones  
+  - K: Actividades financieras y de seguros  
+  - L: Actividades inmobiliarias  
+<br>
+
+* **na_item**: Tipo de indicador económico relacionado con los costes laborales y las horas trabajadas.  
+
+  - **D1_SAL_HW**: Coste laboral por hora trabajada, que incluye sueldos, salarios y cotizaciones sociales pagadas por el empleador (*euros por hora*).  
+  - **D1_SAL_PER**: Coste laboral medio por persona empleada, considerando tanto la remuneración directa como las contribuciones sociales a cargo de la empresa (*euros por empleado*).  
+  - **HW_EMP**: Horas efectivamente trabajadas por persona empleada en promedio, es decir, el total de horas dedicadas al trabajo dividido entre el número de empleados (*horas por empleado*).  
+<br> 
+
+* **unit**: Unidad de medida de los valores registrados para cada indicador.  
+
+  - EUR: Euro  
+  - NAC: Moneda nacional  
+  - PC_EU27_2020_MEUR_CP: Porcentaje del total de la UE27 (desde 2020) en precios corrientes  
+  - HW: Horas trabajadas  
+  - PCH_PRE: Variación porcentual respecto al periodo anterior  
+<br>
+
+* **geo**: Regiones para las que existen observaciones.
+
+  - NUTS 0: 29 países  
+  - NUTS 1: 95 regiones  
+  - NUTS 2: 249 comunidades  
+  - EU27_2020: promedio de la Unión Europea compuesto por los 27 países miembros vigentes desde el año 2020    
+  - OTHERS: 20 códigos que no corresponden a regiones reales  
+<br>
+  
+* **TIME_PERIOD**: Fechas de las observaciones. Comprende datos desde 1995 hasta 2023, con observaciones anuales. La cantidad de registros por año varía, siendo especialmente elevada entre 2000 y 2021, destacando los años 2016 y 2020 como los que concentran más observaciones. Cabe destacar que en 2023 el número de registros disminuye significativamente respecto a años anteriores.  
 
 
  
