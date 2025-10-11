@@ -73,7 +73,7 @@ selectInput <- shiny::selectInput
 
 <!-- Añadir imagen ilustrativa del tema de mi proyecto --> 
 <center>
-<img src="https://ctim.es/Delmond.png" width="60%" />
+<img src="images/portada.jpg" width="60%" />
 </center>
 
 # Introducción
