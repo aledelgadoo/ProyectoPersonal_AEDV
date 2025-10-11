@@ -116,6 +116,7 @@ dataset.info <- read_csv(paste0("data/processed/", dataset.name, "_info.csv")) %
 ## Alineamiento con los objetivos de desarrollo sostenible
 
 <!-- Hay que rellenar el fichero "ODS.xlsx" con nuestros datos. Si en ChatGPT hacemos la consulta "Relacionar "mi tema de proyecto" con ODS" nos saldrá un borrador de relaciones que podremos usar como base y  perfeccionar. 
+--> 
 
 ```{r}
 tb <- read.xlsx("ODS.xlsx") %>%
@@ -125,14 +126,21 @@ tb[is.na(tb)] <- ""
 colnames(tb) <- c("ODS","No procede", "Bajo", "Medio","Alto")
 tabla <- kable(tb,caption="Grado de relación del proyecto con los objetivos de desarrollo sostenible (ODS)", 
                 format = "html",
-                table.attr = 'style="width:500px; margin-left: auto; margin-right: auto;"') 
+                table.attr = 'style="width:500px; margin-left: auto; margin-right: auto;"',
+                booktabs = FALSE,        # <— desactiva el estilo "limpio" sin líneas
+                linesep = "") %>%            # <— evita espacios innecesarios entre filas) 
+    
+        kable_styling(
+        bootstrap_options = c("striped", "bordered", "condensed"), # añade bordes
+        full_width = FALSE,
+        position = "center")
+                
 tabla %>% column_spec(2, extra_css = "text-align: center;") %>%
           column_spec(3, extra_css = "text-align: center;") %>%
           column_spec(4, extra_css = "text-align: center;") %>%
           column_spec(5, extra_css = "text-align: center;")
 ```
 
---> 
 
 # Desarrollo
 
@@ -171,17 +179,24 @@ En esta fase, en general, no pondremos gráficos, salvo cosas muy sencillas rela
 El análisis de lo datos realizado para la validación del tema del proyecto personal va en este apartado. 
 
 --> 
-```{r}
+```{r, echo=F}
+# LEER EL DATASET QUE HEMOS ALMACENADO EN MEMORIA
+dataset.name <- "nama_10r_2lp10"
 
+dataset.original <- read_csv(paste0("data/raw/", dataset.name, ".csv")) %>%
+  as_tibble()
+
+dataset.info <- read_csv(paste0("data/processed/", dataset.name, "_info.csv")) %>% 
+    as_tibble()
 ```
 
-* **code**: `r dataset.original$code[1]`
-* **title**: `r dataset.original$title[1]`
-* **last.update.of.data**: `r dataset.original$last.update.of.data[1]`
-<!-- * **last.table.structure.change**: `r dataset.original$last.table.structure.change[1]` --> 
-* **data.start**: `r dataset.original$data.start[1]`
-* **data.end**: `r dataset.original$data.end[1]`
-* **values**: `r format(dataset.original$values[1],big.mark = ".")`
+* **code**: `r dataset.info$code[1]`
+* **title**: `r dataset.info$title[1]`
+* **last.update.of.data**: `r dataset.info$last.update.of.data[1]`
+<!-- * **last.table.structure.change**: `r dataset.info$last.table.structure.change[1]` --> 
+* **data.start**: `r dataset.info$data.start[1]`
+* **data.end**: `r dataset.info$data.end[1]`
+* **values**: `r format(dataset.info$values[1],big.mark = ".")`
 
 Los datos de nuestro dataset están organizados de forma tidy. Los variables categóricas que existen, su significado, y sus valores posibles son:
 
