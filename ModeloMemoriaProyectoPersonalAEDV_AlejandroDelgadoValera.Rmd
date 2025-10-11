@@ -68,10 +68,12 @@ selectInput <- shiny::selectInput
 ```{r, echo=F}
 # LEER EL DATASET QUE HEMOS ALMACENADO EN MEMORIA
 dataset.name <- "nama_10r_2lp10"
+
 dataset.original <- read_csv(paste0("data/raw/", dataset.name, ".csv")) %>%
   as_tibble()
 
-spec(dataset.original)
+dataset.info <- read_csv(paste0("data/processed/", dataset.name, "_info.csv")) %>% 
+    as_tibble()
 ```
 
 <!-- Todos los proyectos personales tienen que tener un cuadro de mandos (Tema 7 de la asignatura) cuya dirección es similar a la que sigue poniendo tu nº de usuario (en lugar de a2405) y el nombre del Rmd asociado. Los cuadros de mando se alojan en un servidor del DIS y solo se puede acceder a ellos a través de la red de la ULPGC o usando VPN -->
