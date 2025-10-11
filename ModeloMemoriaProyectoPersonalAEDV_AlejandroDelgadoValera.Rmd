@@ -328,7 +328,7 @@ IMPORTANTE: La primera vez que ejecutes este chunk desde la consola de R se te p
 
 ```{r}
 gs4_deauth() 
-SeguimientoActividadesProyecto <- read_sheet('https://docs.google.com/spreadsheets/d/1w07FWlS3cwTad0mZa_Tanl-LL32IPEQXUqNPXmslpSs/edit?usp=sharing') %>%
+SeguimientoActividadesProyecto <- read_sheet('https://docs.google.com/spreadsheets/d/1W6VrcVWawxEk-b0zxrtVtOn-dtGl86BYEAWZ4qOYe0g/edit?usp=sharing') %>%
   as_tibble() 
 ```
 
