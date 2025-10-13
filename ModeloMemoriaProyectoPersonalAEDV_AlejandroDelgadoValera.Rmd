@@ -522,8 +522,25 @@ data.fechas %>%
 
 
 ## Preparación de los datos
-
 <!-- desarrollo de esta fase -->
+
+Vamos a comenzar leyendo el dataset desde local, y haciendo una limpieza general de lo innecesario.
+
+```{r}
+data <- read_csv('data/raw/nama_10r_2lp10.csv') %>% 
+    as_tibble()
+
+data
+```
+Como vimos en el apartado de 'Comprensión de los Datos', la columna <freq> siempre tiene el mismo valor 'A' para todas las observaciones, por lo que podemos quitarla ya que no aporta ninguna información.
+```{r}
+data <- data %>% 
+    select(-freq)
+
+data
+```
+
+
 
 ## Modelado
 
@@ -592,8 +609,6 @@ ggplotly(p)
   
  
 ```
-
-
 
 
 **DESGLOSE DETALLADO DE LAS SESIONES DE TRABAJO**
