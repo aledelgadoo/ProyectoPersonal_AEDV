@@ -1,5 +1,5 @@
 ---
-title: "Desigualdades regionales y sectoriales en la compensación y horas trabajadas en la UE"
+title: "Desigualdades regionales y sectoriales en costes laborales y horas trabajadas en la UE"
 author: "Alejandro Delgado Valera"
 date: "`r Sys.Date()`"
 output:
@@ -17,12 +17,19 @@ PARA CREAR UN CHUNK NUEVO USAR BOTÓN VERDE CON UNA "C" EN LA PARTE SUPERIOR DER
 
 <!-- Opcionalmente, el formateo de este documento en HTML se puede mejorar usando CSS --> 
 
+```{css, echo=F}
+body {
+  text-align: justify;
+}
+```
+
+
 ```{r,echo=FALSE}
 # OPCIONES POR DEFECTO AL COMPILAR LOS CHUNKS 
 knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE,
-  cache=FALSE, # ponerlo a TRUE acelera la compilación pues solo recompila los chunks modificados. Es útil al escribir texto con mucho código que tarda tiempo en compilar. Puede fallar cuando unos chunks dependen de otros. En ese caso, o cuando hay errores que no entiendes, borra la carpeta auxiliar que se genera con la extensión "_cache" para obligar a recompilar todo. 
+  cache=TRUE, # ponerlo a TRUE acelera la compilación pues solo recompila los chunks modificados. Es útil al escribir texto con mucho código que tarda tiempo en compilar. Puede fallar cuando unos chunks dependen de otros. En ese caso, o cuando hay errores que no entiendes, borra la carpeta auxiliar que se genera con la extensión "_cache" para obligar a recompilar todo. 
   echo=FALSE
 )
 ```
@@ -150,15 +157,12 @@ Utilizaremos la metodología de desarrollo CRISP-DM (Cross Industry Standard Pro
 
 
 
-<u>**Comprensión del negocio**.</u> Se plantean los objetivos del proyecto y la búsqueda de información y datos. 
+* **Comprensión del negocio**. Se plantean los objetivos del proyecto y la búsqueda de información y datos. 
 
 <!-- Una parte de esta fase incluye la descripción del objeto del proyecto y sus objetivos, como eso ya se ha presentado anteriormente en la memoria no se repite aquí. Otra parte que si se incluye es describir lo que se ha hecho para  la búsqueda de datos, las fuentes consultadas, entrevistas, lecturas bibliográficas, etc.. señalando las incidencias/dificultades encontradas, así como el análisis de la fiabilidad de la información obtenida. En esta fase no se realiza una descripción detallada de los datos ni pondremos gráficas.  -->
 
-Para la búsqueda del dataset elegido finalmente para la realización de este proyecto, hemos llevado a cabo una serie de pasos.  
-En primer lugar, a través del documento facilitado por el profesor, exploré y contrasté los posibles datasets que aparecían en la tabla dinámica que ofrecía aquellos datasets que cumplían los requisitos relacionados con la temporalidad de las observaciones. Tras consultar con chatgpt, centré mi busqueda en aquellos datasets que tenían un máximo de ≈1 mill. y mínimo 10 mil observaciones. Aquellos datasets que tenían un título que me llamara la atención, se los pasaba al chatgpt para que me diera una breve descripción del mismo. Cuando ya había seleccionado los suficientes, le pedí que hiciera un top con aquellos que considerara más adecuados para el proyecto a realizar, según el temario que se impartiría en la asignatura y que está registrado en el libro de la asignatura que previamente le pasé a este chatbot.  
-Tras haber escrito un dataset previamente en la wiki para registrarlo, sin haber prestado mucha atención a todo las condiciones que este debía cumplir, terminé eligiendo uno que cumplía todos los requisitos expuestos en el documento proporcionado por el profesor. Una vez verificado esto, pasé al siguiente paso de comprensión de los datos elegidos.
 
-<u>**Comprensión de los datos**.</u> Se analiza la  estructura y organización de los datos obtenidos. Se identifican posible problemas como datos faltantes, outliers o inconsistencias. 
+* **Comprensión de los datos**. Se analiza la  estructura y organización de los datos obtenidos. Se identifican posible problemas como datos faltantes, outliers o inconsistencias. 
 
 <!-- Identificar y describir con claridad el significado de las variables categóricas existentes (y todos los valores que pueden tomar) y las observaciones (habitualmente valores numéricos). Identificar si los datos están organizados de forma ordenada (tidy), es decir una sola observación por cada fila de la tabla acompañada de variables categóricas o de forma no ordenada, es decir, varias observaciones por cada fila. En este caso,  habitualmente, los valores posibles de una variable categórica se distribuyen como títulos de columnas de la tabla y cada celda de esas columnas incluye una observación. Estudiar la frecuencia (Nº de observaciones) asociadas a las variables categóricas, el tamaño e intervalo temporal de las series temporales (si procede), la distribución del nº de observaciones por regiones, o por otro tipo de desglose de la información (si procede), análisis de los atributos combinados existentes, dados por las combinaciones de variables categóricas que aparecen en el dataset. Analizar en más detalle (si hubiera lugar) como son los datos en la regiones que más me interesan. Identificación de errores, valores ausentes, outliers o cualquier otra incosistencia encontrada. 
 
@@ -169,6 +173,45 @@ En esta fase, en general, no pondremos gráficos, salvo cosas muy sencillas rela
 El análisis de los datos realizado para la validación del tema del proyecto personal va en este apartado. 
 
 --> 
+ 
+* **Preparación de los datos**. Se realiza limpieza, transformación, combinación y selección/creación de variables relevantes para el análisis
+
+<!-- En esta fase, a partir de los resultados de la fase anterior, estudiamos la relevancia y calidad de la información obtenida en la fase anterior de acuerdo con los objetivos del proyecto, si procede seleccionamos/eliminamos variables categóricas o algunas de sus opciones, exponiendo con claridad y justificadamente los atributos combinados (formados por combinaciones de variables categóricas) que vamos a usar en el estudio. Decidimos el intervalo temporal que vamos a usar para  nuestro estudio. Realizamos la limpieza, transformación,  creación de nuevas variables, combinación de tablas,etc... En esta fase pondremos las gráficas que ilustran los datos una vez procesados y seleccionados pero sin usar los modelos que se formulan en la siguiente fase.  --> 
+
+* **Modelado**. Selección y aplicación de los modelos adecuados para analizar los datos 
+
+<!-- Se aplican a los datos los modelos utilizados, como por ejemplo, regresión lineal, modelos ARIMA, matriz de correlación, PCA, etc.. En esta fase se pondrán gráficas sobre el uso de de estos modelos.  --> 
+
+* **Evaluación**. Evaluar si el modelo responde a las preguntas de investigación, comparación con otros métodos 
+
+<!-- Se discuten de forma crítica los resultados obtenidos incluyendo pruebas de evaluación / validación realizadas (si procede) --> 
+
+* **Despliegue**. Comunicación del trabajo en una memoria y diseño y elaboración de un cuadro de mandos para presentar los resultados de forma eficaz y atractiva. 
+
+<!-- El despliegue de este proyecto se realizará a través de la confección de esta memoria y de un cuadro de mandos. --> 
+
+ 
+ <!-- De acuerdo con esta metodología, los resultados se van presentando, discutiendo y validando a lo largo de las fases de **Modelado**, **Evaluación** y **Despliegue** y, por tanto, para mantener una estructura coherente de la memoria, de acuerdo con la aplicación de la  metodología CRISP-DM, no existe en la memoria una sección separada de presentación de resultados.  --> 
+ 
+ 
+ Es importante observar que esta metodología es iterativa, es decir que los resultados obtenidos en algunas de las fases puede afectar al desarrollo de fases anteriores. 
+ 
+ A continuación se describirá en detalle como se han abordado cada una de las fases del desarrollo del proyecto siguiendo esta metodología.
+
+
+## Comprensión del negocio
+<!-- desarrollo de esta fase -->
+
+Para la búsqueda del dataset elegido finalmente para la realización de este proyecto, hemos llevado a cabo una serie de pasos.  
+<br>
+En primer lugar, a través del documento facilitado por el profesor, exploré y contrasté los posibles datasets que aparecían en la tabla dinámica que ofrecía aquellos datasets que cumplían los requisitos relacionados con la temporalidad de las observaciones. Tras consultar con chatgpt, centré mi busqueda en aquellos datasets que tenían un máximo de ≈1 mill. y mínimo 10 mil observaciones. Aquellos datasets que tenían un título que me llamara la atención, se los pasaba al chatgpt para que me diera una breve descripción del mismo. Cuando ya había seleccionado los suficientes, le pedí que hiciera un top con aquellos que considerara más adecuados para el proyecto a realizar, según el temario que se impartiría en la asignatura y que está registrado en el libro de la asignatura que previamente le pasé a este chatbot.  
+<br>
+Tras haber escrito un dataset previamente en la wiki para registrarlo, sin haber prestado mucha atención a todo las condiciones que este debía cumplir, terminé eligiendo uno que cumplía todos los requisitos expuestos en el documento proporcionado por el profesor. Una vez verificado esto, pasé al siguiente paso de comprensión de los datos elegidos.
+
+## Comprensión de los datos
+<!-- desarrollo de esta fase -->
+
+### Información general del dataset
 ```{r, echo=F}
 # LEER EL DATASET QUE HEMOS ALMACENADO EN MEMORIA
 dataset.name <- "nama_10r_2lp10"
@@ -190,6 +233,8 @@ data <- dataset.original %>%
 - **data.start**: `r dataset.info$data.start[1]`
 - **data.end**: `r dataset.info$data.end[1]`
 - **values**: `r format(dataset.info$values[1],big.mark = ".")`
+
+### Explicación de variables categóricas
 
 Los datos de nuestro dataset están organizados de forma tidy. Los variables categóricas que existen, su significado, y sus valores posibles son:
 
@@ -240,39 +285,241 @@ Valores posibles:
 <br>
   
 - **TIME_PERIOD**: Fechas de las observaciones. Comprende datos desde 1995 hasta 2023, con observaciones anuales. La cantidad de registros por año varía, siendo especialmente elevada entre 2000 y 2021, destacando los años 2016 y 2020 como los que concentran más observaciones. Cabe destacar que en 2023 el número de registros disminuye significativamente respecto a años anteriores.  
- 
-<u>**Preparación de los datos**.</u> Se realiza limpieza, transformación, combinación y selección/creación de variables relevantes para el análisis
 
-<!-- En esta fase, a partir de los resultados de la fase anterior, estudiamos la relevancia y calidad de la información obtenida en la fase anterior de acuerdo con los objetivos del proyecto, si procede seleccionamos/eliminamos variables categóricas o algunas de sus opciones, exponiendo con claridad y justificadamente los atributos combinados (formados por combinaciones de variables categóricas) que vamos a usar en el estudio. Decidimos el intervalo temporal que vamos a usar para  nuestro estudio. Realizamos la limpieza, transformación,  creación de nuevas variables, combinación de tablas,etc... En esta fase pondremos las gráficas que ilustran los datos una vez procesados y seleccionados pero sin usar los modelos que se formulan en la siguiente fase.  --> 
+```{r}
+# CÓDIGOS NUTS DE REGIONES REALES PRESENTES EN LOS MAPAS NUTS ACTUALES
 
-<u>**Modelado**.</u> Selección y aplicación de los modelos adecuados para analizar los datos 
+NUTS0_codes <- c("EL", "ES", "FI", "FR", "HR", "HU", "IE", "IS", "AL", "AT", "BA", "BE", "BG", "CH", "CY", "CZ", "DE", "DK", "EE", "IT", "LI", "LT", "LU", "LV", "ME", "MK", "MT", "NL", "NO", "PL", "PT", "RO", "RS", "SE", "SI", "SK", "TR", "UA", "XK")
 
-<!-- Se aplican a los datos los modelos utilizados, como por ejemplo, regresión lineal, modelos ARIMA, matriz de correlación, PCA, etc.. En esta fase se pondrán gráficas sobre el uso de de estos modelos.  --> 
+NUTS1_codes <- c("DEA", "DEB", "DEC", "DED", "DEE", "DEF", "DEG", "DK0", "EE0", "EL3", "EL4", "EL5", "EL6", "ES1", "ES2", "ES3", "ES4", "ES5", "ES6", "ES7", "FI1", "AL0", "AT1", "AT2", "AT3", "BA0", "BE1", "BE2", "BE3", "BG3", "BG4", "CH0", "CY0", "CZ0", "DE1", "DE2", "DE3", "DE4", "DE5", "DE6", "DE7", "DE8", "DE9", "HR0", "HU1", "HU2", "HU3", "IE0", "IS0", "ITC", "ITF", "ITG", "ITH", "ITI", "LI0", "XK0", "LT0", "LU0", "LV0", "ME0", "MK0", "MT0", "NL1", "NL2", "NL3", "NL4", "NO0", "PL2", "PL4", "PL5", "PL6", "PL7", "PL8", "PL9", "PT1", "PT2", "PT3", "RO1", "RO2", "RO3", "RO4", "RS1", "RS2", "SE1", "SE2", "SE3", "SI0", "SK0", "TR1", "TR2", "TR3", "TR4", "TR5", "TR6", "TR7", "TR8", "TR9", "TRA", "TRB", "TRC", "FI2", "FR1", "FRB", "FRC", "FRD", "FRE", "FRF", "FRG", "FRH", "FRI", "FRJ", "FRK", "FRL", "FRM", "FRY")
 
-<u>**Evaluación**.</u> Evaluar si el modelo responde a las preguntas de investigación, comparación con otros métodos 
+NUTS2_codes <- c("DE12", "DE13", "DE14", "DE21", "DE22", "DE23", "DE24", "DE25", "DE26", "DE27", "DE30", "DE40", "DE50", "DE60", "DE71", "DE72", "DE73", "DE80", "DE91", "DE92", "DE93", "DE94", "DEA1", "DEA2", "DEA3", "DEA4", "DEA5", "DEB1", "DEB2", "DEB3", "DEC0", "DED2", "DED4", "DED5", "DEE0", "DEF0", "DEG0", "DK01", "AL01", "AL02", "AL03", "AT11", "AT12", "AT13", "AT21", "AT22", "AT31", "AT32", "AT33", "AT34", "BA01", "BA02", "BA03", "BE10", "BE21","BE22", "BE23", "BE24", "BE25", "BE31", "BE32", "BE33", "BE34", "BE35", "BG31", "BG32", "BG33", "BG34", "BG41", "BG42", "CH01", "CH02", "CH03", "CH04", "CH05", "CH06", "CH07", "CY00", "CZ01", "CZ02", "CZ03", "CZ04", "CZ05", "CZ06", "CZ07", "CZ08", "DE11", "MK00", "MT00", "NL11", "NL12", "NL13", "NL21", "NL22", "NL23", "NL32", "NL34", "NL35", "NL36", "NL41", "NL42", "NO02", "NO06", "NO07", "NO08", "NO09", "NO0A", "NO0B", "PL21", "PL22", "PL41", "PL42", "PL43", "PL51", "PL52", "PL61", "PL62", "PL63", "PL71", "PL72", "PL81", "PL82", "PL84", "PL91", "PL92", "PT11", "PT15", "PT19", "PT1A", "PT1B", "PT1C", "DK02", "DK03", "DK04", "DK05", "EE00", "EL30", "EL41", "EL42", "EL43", "EL51", "EL52", "EL53", "EL54", "EL61", "EL62", "EL63", "EL64", "EL65", "ES11", "ES12", "ES13", "ES21", "ES22", "ES23", "ES24", "ES30", "ES41", "ES42", "ES43", "ES51", "ES52", "ES53", "ES61", "ES62", "ES63", "ES64", "ES70", "FI19", "FI1B", "FI1C", "FI1D", "FI20", "FR10", "FRB0", "FRC1", "FRC2", "FRD1", "FRD2", "FRE1", "FRE2", "FRF1", "FRF2", "FRF3", "FRG0", "FRH0", "FRI1", "FRI2", "FRI3", "FRJ1", "FRJ2", "FRK1", "FRK2", "FRL0", "FRM0", "FRY1", "FRY2", "FRY3", "FRY4", "FRY5", "HR02", "HR03", "HR05", "HR06", "HU11", "HU12", "HU21", "HU22", "HU23", "HU31", "HU32", "HU33", "IE04", "IE05", "IE06", "IS00", "ITC1", "ITC2", "ITC3", "ITC4", "ITF1", "ITF2", "ITF3", "ITF4", "ITF5", "ITF6", "ITG1", "ITG2", "ITH1", "ITH2", "ITH3", "ITH4", "ITH5", "ITI1", "ITI2", "ITI3", "ITI4", "LI00", "LT01", "LT02", "LU00", "LV00", "ME00", "SE33", "SI03", "SI04", "SK01", "SK02", "SK03", "SK04", "TR10", "TR21", "TR22", "TR31", "TR32", "TR33", "TR41", "TR42", "TR51", "TR52", "TR61", "TR62", "TR63", "TR71", "TR72", "TR81", "TR82", "TR83", "TR90", "TRA1", "TRA2", "TRB1", "TRB2", "TRC1", "TRC2", "TRC3", "XK00", "PT1D", "PT20", "PT30", "RO11", "RO12", "RO21", "RO22", "RO31", "RO32", "RO41", "RO42", "RS11", "RS12", "RS21", "RS22", "SE11", "SE12", "SE21", "SE22", "SE23", "SE31", "SE32")
 
-<!-- Se discuten de forma crítica los resultados obtenidos incluyendo pruebas de evaluación / validación realizadas (si procede) --> 
+NUTS3_codes <- c("AT333", "AT334", "AT335", "AT341", "AT342", "BE100", "BE211", "BE212", "BE213", "BE223", "BE224", "BE225", "BE231", "BE232", "BE233", "BE234", "BE235", "BE236", "BE241", "BE242", "BE251", "BE252", "BE253", "BE254", "BE255", "BE256", "BE257", "BE258", "BE310", "BE323", "BE328","BE329", "BE32A", "BE32B", "BE32C", "BE32D", "BE331", "BE332", "BE334", "BE335", "BE336", "BE341", "BE342", "BE343", "BE344", "BE345", "BE351", "BE352", "BE353", "BG311", "BG312", "BG313", "BG314", "BG315", "BG321", "BG322", "BG323", "BG324", "BG325", "BG331", "BG332", "BG333", "BG334", "BG341", "BG342", "BG343", "BG344", "BG411", "BG412", "BG413", "BG414", "BG415", "BG421", "BG422", "BG423", "BG424", "BG425", "CH011", "CH012", "CH013", "CH021", "CH022", "CH023", "CH024", "CH025", "CH031", "CH032", "CH033", "CH040", "CH051", "CH052", "CH053", "CH054", "CH055", "CH056", "CH057", "CH061", "CH062", "CH063", "CH064", "CH065", "CH066", "CH070", "CY000", "CZ010", "CZ020", "CZ031", "CZ032", "CZ041", "CZ042", "CZ051", "CZ052", "CZ053", "CZ063", "CZ064", "CZ071", "CZ072", "CZ080", "DE111", "DE112", "DE113", "DE114", "DE115", "DE116", "DE117", "DE118", "DE119", "DE11A", "DE11B", "DE11C", "DE11D", "DE121", "DE122", "DE123", "DE124", "DE125", "DE126", "DE127", "DE128", "DE129", "DE12A", "DE12B", "DE12C", "DE131", "DE132", "DE133", "DE134", "DE135", "DE136", "DE137", "DE138", "DE139", "DE13A", "DE141", "DE142", "DE143", "DE144", "DE145", "DE146", "DE147", "DE148", "DE149", "DE211", "DE212", "AL011", "AL012", "AL013", "AL014", "AL015", "AL021", "AL022", "AL031", "AL032", "AL033", "AL034", "AL035", "AT111", "AT112", "AT113", "AT121", "AT122", "AT123", "AT124", "AT125", "AT126", "AT127", "AT130", "AT211", "AT212", "AT213", "AT221", "AT222", "AT223", "AT224", "AT225", "AT226", "AT311", "AT312", "AT313", "AT314", "AT315", "AT321", "AT322", "AT323", "AT331", "AT332", "DE238", "DE239")
 
-<u>**Despliegue**.</u> Comunicación del trabajo en una memoria y diseño y elaboración de un cuadro de mandos para presentar los resultados de forma eficaz y atractiva. 
+NUTS3_codes <-c(NUTS3_codes, "DE23A", "DE241", "DE242", "DE243", "DE244", "DE245", "DE246", "DE247", "DE248", "DE249", "DE24A", "DE24B", "DE24C", "DE24D", "DE251", "DE252", "DE253", "DE254", "DE255", "DE256", "DE257", "DE258", "DE259", "DE25A", "DE25B", "DE25C", "DE261", "DE262", "DE263", "DE264", "DE265", "DE266", "DE267", "DE268", "DE269", "DE26A", "DE26B", "DEA5C", "DEB11", "DEB12", "DEB13", "DEB14", "DEB15", "DEB17", "DEB18", "DEB1A", "DEB1B", "DEB1C", "DEB1D", "DEB21", "DEB22", "DEB23", "DEB24", "DEB25", "DEB31", "DEB32", "DEB33", "DEB34", "DEB35", "DEB36", "DEB37", "DEB38", "DEB39", "DEB3A", "DEB3B", "DEB3C", "DEB3D", "DEB3E", "DEB3F", "DEB3G", "DEB3H", "DEB3I", "DEB3J", "DEB3K", "DEC01", "DEC02", "DEC03", "DEC04", "DEC05", "DEC06", "DED21", "DED2C", "DED2D", "DED2E", "DED2F", "DED41", "DED42", "DED43", "DED44", "DED45", "DED51", "DED52", "DED53", "DEE01", "DEE02", "DEE03", "DEE04", "DEE05", "DEE06", "DEE07", "DEE08", "DEE09", "DEE0A", "DEE0B", "DEE0C", "DEE0D", "DEE0E", "DEF01", "DEF02", "DEF03", "DEF04", "DEF05", "DEF06", "DEF07", "DEF08", "DEF09", "DEF0A", "DEF0B", "DEF0C", "DEF0D", "DEF0E", "DEF0F", "DEG01", "DEG02", "DE26C", "DE271", "DE272", "DE273", "DE274", "DE275", "DE276", "DE277", "DE278", "DE279", "DE27A", "DE27B", "DE27C", "DE27D", "DE27E", "DE300", "DE401", "DE402", "DE403", "DE404", "DE405", "DE406", "DE407", "DE408", "DE409", "DE40A", "DE40B", "DE40C", "DE40D", "DE40E", "DE40F", "DE40G", "DE40H", "DE40I", "DE501", "DE502", "DE600", "DE711", "DE712", "DE713", "DE714", "DE715", "DE716", "DE717", "DE718", "DE719", "DE71A", "DE71B", "DE71C", "DE71D", "DE71E", "DE721", "DE722", "DE723", "DE724", "DE725", "DE731", "DE732", "DE733", "DE734", "DE735", "DE736", "DE737", "DE803", "DE804", "DE80J", "DE80K", "DE80L", "DE80M", "DE80N", "DE80O", "DE911", "DE912", "DE913", "DE914", "DE916", "DE917", "DE918", "DE91A", "DE91B", "DE91C", "DE922", "DE923", "DE925", "DE926", "DE927", "DE928", "DE929", "DE931", "DE932", "DE933", "DE934", "DE935", "DE936", "DE937", "DE938", "DE939", "DE93A", "DE93B", "DE941", "DE942", "DE943", "DE944", "DE945", "DE946", "DE947", "DE948", "DE949", "DE94A", "DE94B", "DE94C", "DE94D")
 
-<!-- El despliegue de este proyecto se realizará a través de la confección de esta memoria y de un cuadro de mandos. --> 
+NUTS3_codes <-c(NUTS3_codes, "DE94E", "DE94F", "DE94G", "DE94H", "DEA11", "DEA12", "DEA13", "DEA14", "DEA15", "DEA16", "DEA17", "DEA18", "DEA19", "DEA1A", "DEA1B", "DEA1C", "DEA1D", "DEA1E", "DEA1F", "DEA22", "DEA23", "DEA24", "DEA26", "DEA27", "DEA28", "DEA29", "DEA2A", "DEA2B", "DEA2C", "DEA2D", "DEA31", "DEA32", "DEA33", "DEA34", "DEA35", "DEA36", "DEA37", "DEA38", "DEA41", "DEA42", "DEA43", "DEA44", "DEA45", "DEA46", "DEA47", "DEA51", "DEA52", "DEA53", "DEA54", "DEA55", "DEA56", "DEA57", "DEA58", "DEA59", "DEA5A", "DEA5B", "DE213", "DE214", "DE215", "DE216", "DE217", "DE218", "DE219", "DE21A", "DE21B", "DE21C", "DE21D", "DE21E", "DE21F", "DE21G", "DE21H", "DE21I", "DE21J", "DE21K", "DE21L", "DE21M", "DE21N", "DE221", "DE222", "DE223", "DE224", "DE225", "DE226", "DE227", "DE228", "DE229", "DE22A", "DE22B", "DE22C", "DE231", "DE232", "DE233", "DE234", "DE235", "DE236", "DE237", "FRD11", "FRD12", "FRD13", "FRD21", "FRD22", "FRE11", "FRE12", "FRE21", "FRE22", "FRE23", "FRF11", "FRF12", "FRF21", "FRF22", "FRF23", "FRF24", "FRF31", "FRF32", "FRF33", "FRF34", "FRG01", "FRG02", "FRG03", "FRG04", "FRG05", "FRH01", "FRH02", "FRH03", "FRH04", "FRI11", "FRI12", "FRI13", "FRI14", "FRI15", "FRI21", "FRI22", "FRI23", "FRI31", "FRI32", "FRI33", "FRI34", "FRJ11", "FRJ12", "FRJ13", "FRJ14", "FRJ15", "FRJ21", "FRJ22", "FRJ23", "FRJ24", "FRJ25", "FRJ26", "FRJ27", "FRJ28", "FRK11", "FRK12", "FRK13", "FRK14", "FRK21", "FRK22", "FRK23", "FRK24", "FRK25", "FRK26", "FRK27", "FRK28", "FRL01", "FRL02", "FRL03", "FRL04", "FRL05", "FRL06", "FRM01", "FRM02", "FRY10", "FRY20", "DEG03", "DEG05", "DEG06", "DEG07", "DEG09", "DEG0A", "DEG0C", "DEG0D", "DEG0E", "DEG0G", "DEG0J", "DEG0K", "DEG0L", "DEG0M", "DEG0Q", "DEG0R", "DEG0S", "DEG0T", "DEG0U", "DEG0V", "DK011", "DK012", "DK013", "DK014", "DK021", "DK022", "DK031", "DK032", "DK041", "DK042", "DK050", "EE001", "EE004", "EE008", "EE009", "EE00A", "EL301", "EL302", "EL303", "EL304", "EL305", "EL306", "EL307", "EL411", "EL412", "EL413", "EL421", "EL422", "EL431", "EL432", "EL433", "EL434", "EL511", "EL512", "EL513", "EL514", "EL515", "EL521", "EL522", "EL523", "EL524", "EL525", "EL526", "EL527")
 
- 
- <!-- De acuerdo con esta metodología, los resultados se van presentando, discutiendo y validando a lo largo de las fases de **Modelado**, **Evaluación** y **Despliegue** y, por tanto, para mantener una estructura coherente de la memoria, de acuerdo con la aplicación de la  metodología CRISP-DM, no existe en la memoria una sección separada de presentación de resultados.  --> 
- 
- 
- Es importante observar que esta metodología es iterativa, es decir que los resultados obtenidos en algunas de las fases puede afectar al desarrollo de fases anteriores. 
- 
- A continuación se describirá en detalle como se han abordado cada una de las fases del desarrollo del proyecto siguiendo esta metodología.
+NUTS3_codes <-c(NUTS3_codes, "EL531", "EL532", "EL533", "EL541", "EL542", "EL543", "EL611", "EL612", "EL613", "EL621", "EL622", "EL623", "EL624", "EL631", "EL632", "EL633", "EL641", "EL642", "EL643", "EL644", "EL645", "EL651", "EL652", "EL653", "ES111", "ES112", "ES113", "ES114", "ES120", "ES130", "ES211", "ES212", "ES213", "ES220", "ES230", "ES241", "ES242", "ES243", "ES300", "ES411", "ES412", "ES413", "ES414", "ES415", "ES416", "ES417", "ES418", "ES419", "ES421", "ES422", "ES423", "ES424", "ES425", "ES431", "ES432", "ES511", "ES512", "ES513", "ES514", "ES521", "ES522", "ES523", "ES531", "ES532", "ES533", "ES611", "ES612", "ES613", "ES614", "ES615", "ES616", "ES617", "ES618", "ES620", "ES630", "ES640", "ES703", "ES704", "ES705", "ES706", "ES707", "ES708", "ES709", "FI196", "FI198", "FI199", "FI19A", "FI19B", "FI1B1", "FI1C1", "FI1C2", "FI1C5", "FI1C6", "FI1C7", "FI1D5", "FI1D7", "FI1D8", "FI1D9", "FI1DA", "FI1DB", "FI1DC", "FI200", "FR101", "FR102", "FR103", "FR104", "FR105", "FR106", "FR107", "FR108", "FRB01", "FRB02", "FRB03", "FRB04", "FRB05", "FRB06", "FRC11", "FRC12", "FRC13", "FRC14", "FRC21", "FRC22", "FRC23", "FRC24", "HU313", "HU321", "HU322", "HU323", "HU331", "HU332", "HU333", "IE041", "IE042", "IE051", "IE052", "IE053", "IE061", "IE062", "IE063", "IS001", "IS002", "ITC11", "ITC12", "ITC13", "ITC14", "ITC15", "ITC16", "ITC17", "ITC18", "ITC20", "ITC31", "ITC32", "ITC33", "ITC34", "ITC41", "ITC42", "ITC43", "ITC44", "ITC46", "ITC47", "ITC48", "ITC49", "NL415", "NL416", "NL421", "NL422", "NL423", "NO020", "NO060", "NO071", "NO072", "NO073", "NO081", "NO083", "NO084", "NO085", "NO092", "NO093", "NO094", "NO0A1", "NO0A2", "NO0A3", "NO0B1", "NO0B2", "PL213", "PL214", "PL217", "PL218", "PL219", "PL21A", "PL224", "PL225", "PL227", "PL228", "PL229", "PL22A", "PL22B", "PL22C", "PL411", "PL414", "PL415", "PL416", "PL417", "PL418", "PL424", "PL426", "PL427", "PL428", "PL431", "PL432", "PL514", "PL515", "PL516", "PL517", "PL518", "PL523", "PL524", "PL613", "PL616", "PL617", "PL618", "PL619", "PL621", "PL622", "PL623", "PL633", "PL634", "PL636", "PL637", "PL638", "PL711", "PL712", "ITC4A", "ITC4B", "ITC4C", "ITC4D")
+
+NUTS3_codes <-c(NUTS3_codes, "ITF11", "ITF12", "ITF13", "ITF14", "ITF21", "ITF22", "ITF31", "ITF32", "ITF33", "ITF34", "ITF35", "ITF43", "ITF44", "ITF45", "ITF46", "ITF47", "ITF48", "ITF51", "ITF52", "ITF61", "ITF62", "ITF63", "ITF64", "ITF65", "ITG11", "ITG12", "ITG13", "ITG14", "ITG15", "ITG16", "ITG17", "ITG18", "ITG19", "ITG2D", "ITG2E", "ITG2F", "ITG2G", "ITG2H", "ITH10", "ITH20", "ITH31", "ITH32", "ITH33", "ITH34", "ITH35", "ITH36", "ITH37", "ITH41", "ITH42", "ITH43", "ITH44", "ITH51", "ITH52", "ITH53", "ITH54", "ITH55", "ITH56", "ITH57", "ITH58", "ITH59", "ITI11", "ITI12", "ITI13", "ITI14", "ITI15", "ITI16", "ITI17", "ITI18", "ITI19", "ITI1A", "ITI21", "ITI22", "ITI31", "ITI32", "ITI33", "ITI34", "ITI35", "ITI41", "ITI42", "ITI43", "ITI44", "ITI45", "LI000", "LT011", "LT021", "LT022", "LT023", "LT024", "LT025", "LT026", "LT027", "LT028", "LT029", "LU000", "LV005", "LV009", "LV00A", "LV00B", "LV00C", "ME000", "MK001", "MK002", "MK003", "MK004", "MK005", "MK006", "MK007", "MK008", "MT001", "MT002", "NL112", "NL114", "NL115", "NL126", "NL127", "NL128", "NL131", "NL132", "NL133", "NL211", "NL212", "NL213", "NL221", "NL224", "NL225", "NL226", "NL230", "NL321", "NL323", "NL325", "NL327", "NL328", "NL32A", "NL32B", "NL341", "NL342", "NL350", "NL361", "NL362", "NL363", "NL364", "NL365", "NL366", "NL411", "NL414", "FRY30", "FRY40", "FRY50", "HR021", "HR022", "HR023", "HR024", "HR025", "HR026", "HR027", "HR028", "HR031", "HR032", "HR033", "HR034", "HR035", "HR036", "HR037", "HR050", "HR061", "HR062", "HR063", "HR064", "HR065", "HU110", "HU120", "HU211", "HU212", "HU213", "HU221", "HU222", "HU223", "HU231", "HU232", "HU233", "HU311", "HU312", "TR412", "TR413", "TR421", "TR422", "TR423", "TR424", "TR425", "TR510", "TR521", "TR522", "TR611", "TR612", "TR613", "TR621", "TR622", "TR631", "TR632", "TR633", "TR711", "TR712", "TR713", "TR714", "TR715", "TR721")
+
+NUTS3_codes <-c(NUTS3_codes, "TR722", "TR723", "TR811", "TR812", "TR813", "TR821", "TR822", "TR823", "TR831", "TR832", "TR833", "TR834", "TR901", "TR902", "TR903", "TR904", "TR905", "TR906", "TRA11", "TRA12", "TRA13", "TRA21", "TRA22", "TRA23", "TRA24", "TRB11", "TRB12", "TRB13", "TRB14", "TRB21", "TRB22", "TRB23", "TRB24", "TRC11", "TRC12", "TRC13", "TRC21", "TRC22", "TRC31", "TRC32", "TRC33", "TRC34", "PL713", "PL714", "PL715", "PL721", "PL722", "PL811", "PL812", "PL814", "PL815", "PL821", "PL822", "PL823", "PL824", "PL841", "PL842", "PL843", "PL911", "PL912", "PL913", "PL921", "PL922", "PL923", "PL924", "PL925", "PL926", "PT111", "PT112", "PT119", "PT11A", "PT11B", "PT11C", "PT11D", "PT11E", "PT150", "PT191", "PT192", "PT193", "PT194", "PT195", "PT196", "PT1A0", "PT1B0", "PT1C1", "PT1C2", "PT1C3", "PT1C4", "PT1D1", "PT1D2", "PT1D3", "PT200", "PT300", "RO111", "RO112", "RO113", "RO114", "RO115", "RO116", "RO121", "RO122", "RO123", "RO124", "RO125", "RO126", "RO211", "RO212", "RO213", "RO214", "RO215", "RO216", "RO221", "RO222", "RO223", "RO224", "RO225", "RO226", "RO311", "RO312", "RO313", "RO314", "RO315", "RO316", "RO317", "RO321", "RO322", "RO411", "RO412", "RO413", "RO414", "RO415", "RO421", "RO422", "RO423", "RO424", "RS110", "RS121", "RS122", "RS123", "RS124", "RS125", "RS126", "RS127", "RS211", "RS212", "RS213", "RS214", "RS215", "RS216", "RS217", "RS218", "RS221", "RS222", "RS223", "RS224", "RS225", "RS226", "RS227", "RS228", "RS229", "SE110", "SE121", "SE122", "SE123", "SE124", "SE125", "SE211", "SE212", "SE213", "SE214", "SE221", "SE224", "SE231", "SE232", "SE311", "SE312", "SE313", "SE321", "SE322", "SE331", "SE332", "SI031", "SI032", "SI033", "SI034", "SI035", "SI036", "SI037", "SI038", "SI041", "SI042", "SI043", "SI044", "SK010", "SK021", "SK022", "SK023", "SK031", "SK032", "SK041", "SK042", "TR100", "TR211", "TR212", "TR213", "TR221", "TR222", "TR310", "TR321", "TR322", "TR323", "TR331", "TR332", "TR333", "TR334", "TR411", "XK001", "XK002", "XK003", "XK004", "XK005", "XK006", "XK007")
+
+NUTS.computation <- function(s){
+  if(substr(s,1,2) %in% c("EU","EA","EF","CC","OE","G2","G7"))  return(s)
+  if(nchar(s)==2 & s %in% NUTS0_codes) return("0")
+  if(nchar(s)==3 & s %in% NUTS1_codes) return("1")
+  if(nchar(s)==4 & s %in% NUTS2_codes) return("2")
+  if(nchar(s)==5 & s %in% NUTS3_codes) return("3")
+  return("OTHERS")
+}
+```
 
 
-## Comprensión del negocio
+```{r}
+for(col in colnames(data)){
+  if(is.numeric(data[[col]])) next
+  if(col=="TIME_PERIOD"){
+    # print(col)
+    # print(
+    #   paste0("data.start: ",min(data[[col]]),
+    #          ", data.end: ",max(data[[col]]),
+    #          ", Number of time periods: ",length(unique(data[[col]]))
+    #   )
+    # )
+    
+    cat("\nCOLUMNA: TIME_PERIOD \n")
+    print(
+      data %>%
+        group_by(TIME_PERIOD) %>%
+        summarise(N.observ=dplyr::n())%>%
+        as.matrix() %>%
+        noquote()
+    )
+    next
+  }
+ if(col=="geo"){
+    cat("\nCONTABILIZACIÓN Nº REGIONES NUTS A PARTIR DE LA COLUMNA geo\n")
+    print(
+      tibble(
+        NUTS=sapply(unique(data[[col]]),NUTS.computation)
+      ) %>%
+        group_by(NUTS) %>%
+        summarise(`Number of Regions`=dplyr::n()) %>%
+        as.matrix() %>%
+        noquote()
+    )
+    next
+ }
+  tb <-  data %>%
+    left_join(get_eurostat_dic(col)%>%rename(!!col := code_name),
+              by=col) %>%
+    group_by(!!sym(col),full_name)%>%
+    summarise(N.Observ=dplyr::n()) %>%
+    relocate(N.Observ,.before = full_name)%>%
+    arrange(desc(N.Observ)) %>%
+    mutate(full_name=ifelse(nchar(full_name)<41,full_name,paste0(substr(full_name,1,40),"..")))
+    
+  texto <- paste0("COLUMNA: ",col)
+  if(nrow(tb)>50){
+    texto <- paste0(texto," (",nrow(tb)," opciones, se imprimen 50)")
+    tb <- head(tb,50)
+  }
+  cat(texto,"\n")
+  
+  tb %>% 
+    as.matrix() %>%
+    noquote() %>%
+    print()
+}
 
-<!-- desarrollo de esta fase -->
+```
 
-## Comprensión de los datos
+### Percentiles de la distribución de tamaños de las series temporales
 
-<!-- desarrollo de esta fase -->
+Observamos que el tamaño de las series temporales varía entre 1 y 29 años, siendo el 90% de las series con más de 22 años.  
+
+```{r}
+vars <- colnames(data)[1:(ncol(data)-2)]
+
+data.series <- data %>%
+  group_by(across(all_of(vars))) 
+
+data.series.fechas <- data.series %>% 
+  summarise(N.fechas=dplyr::n())
+```
+
+```{r}
+percentiles <- tibble(min=min(data.series.fechas$N.fechas))
+percentiles <- percentiles %>% mutate(min=min(data.series.fechas$N.fechas))
+percentiles <- percentiles %>% mutate(p10=quantile(data.series.fechas$N.fechas, 0.1))
+percentiles <- percentiles %>% mutate(p25=quantile(data.series.fechas$N.fechas, 0.25))
+percentiles <- percentiles %>% mutate(p50=quantile(data.series.fechas$N.fechas, 0.50))
+percentiles <- percentiles %>% mutate(p75=quantile(data.series.fechas$N.fechas, 0.75))
+percentiles <- percentiles %>% mutate(p90=quantile(data.series.fechas$N.fechas, 0.9))
+percentiles <- percentiles %>% mutate(max=max(data.series.fechas$N.fechas))
+
+percentiles
+```
+
+### Distribución del nº de observaciones por regiones 
+
+Observamos que, tanto para España como para Canarias, el nº de observaciones supera el `p75` de la distribución (1199 > 1159)
+
+```{r}
+data.geo <- data %>%
+  group_by(geo)%>%
+  summarise(N.Observ=dplyr::n())
+```
+
+**Percentiles de la distribución del nº de observaciones por regiones**
+```{r}
+percentiles <- tibble(min=min(data.geo$N.Observ))
+percentiles <- percentiles %>% mutate(min=min(data.geo$N.Observ))
+percentiles <- percentiles %>% mutate(p10=quantile(data.geo$N.Observ, 0.1))
+percentiles <- percentiles %>% mutate(p25=quantile(data.geo$N.Observ, 0.25))
+percentiles <- percentiles %>% mutate(p50=quantile(data.geo$N.Observ, 0.50))
+percentiles <- percentiles %>% mutate(p75=quantile(data.geo$N.Observ, 0.75))
+percentiles <- percentiles %>% mutate(p90=quantile(data.geo$N.Observ, 0.9))
+percentiles <- percentiles %>% mutate(max=max(data.geo$N.Observ))
+
+percentiles
+```
+
+**Nº de observaciones en España/Canarias**
+```{r}
+LocalRegionsFullNames <- c("Spain","Canarias","Canarias","El Hierro","Fuerteventura","Gran Canaria",
+  "La Gomera","La Palma","Lanzarote","Tenerife")
+
+LocalRegionsCodes <- c("ES","ES7","ES70","ES703","ES704","ES705","ES706","ES707","ES708","ES709")
+
+LocalRegions <- tibble(
+  geo=LocalRegionsCodes,
+  full_name=LocalRegionsFullNames
+)
+
+data.geo %>%
+  filter(geo %in% LocalRegionsCodes) %>%
+  left_join(LocalRegions,by="geo") %>%
+  relocate(full_name,.after = geo)
+```
+
+
+### Combinaciones existentes de las variables categóricas 
+
+El dataset presenta 50 combinaciones únicas de variables categóricas (`freq`, `nace_r2`, `na_item`, `unit`), cumpliendo el criterio mínimo de tener al menos 5 atributos combinados con un número relativamente alto de observaciones (≈8600 observ.).  
+
+
+```{r}
+vars <- colnames(data)[1:(ncol(data)-3)]
+vars <- vars[vars != "age"]
+vars <- vars[vars != "sex"]
+
+data.combinaciones <- data %>%
+  group_by(across(all_of(vars))) 
+
+data.combinaciones %>%
+  summarise(N.observ=dplyr::n(),
+            init.date=min(TIME_PERIOD),
+            end.date=max(TIME_PERIOD)) %>%
+  arrange(desc(N.observ)) %>% 
+  print(n=50)
+```
+
+### Poner las fechas por columnas
+
+Observamos que los datos se mantienen constantes desde el año 2000 hasta el 2023, registrando valores más altos en periodos recientes en comparación con los antiguos. 
+  
+```{r}
+# pasamos las fechas a columnas de la tabla y añadimos algunos datos 
+data.fechas <- data %>%
+  pivot_wider(names_from = TIME_PERIOD,values_from = values,names_sort = FALSE) %>%
+  #relocate(geo) %>% 
+  left_join(get_eurostat_dic("geo"), join_by(geo==code_name)) %>%
+  relocate(full_name,.after=geo)%>%
+  mutate(NUTS=sapply(geo,NUTS.computation)) %>%
+  relocate(NUTS)  %>%
+  mutate(geo2=substr(geo,1,2)) %>% 
+  left_join(get_eurostat_dic("geo")%>%rename(country=full_name),join_by(geo2==code_name)) %>%
+  select(-geo2) %>% 
+  rename(region=full_name) %>%
+  relocate(country,.after = NUTS) %>%
+  arrange(NUTS,country,geo)
+
+#data.fechas
+```
+
+**Visualización España/Canarias (máximo 60 columnas y 1000 filas por región)**
+
+```{r}
+# visualización tabla para España y Canarias 
+posRegion <- which(colnames(data.fechas) == "region")
+Ncol <- ncol(data.fechas)
+posSelect <- 1:Ncol 
+if(Ncol>60) posSelect <- unique(c(1:posRegion,(Ncol-60):Ncol))
+
+data.fechas %>%
+  select(posSelect) %>% 
+  filter(geo %in% LocalRegionsCodes) %>% 
+  group_by(geo) %>%
+  slice_head(n = 1000) %>%
+  ungroup() %>% 
+  relocate(region) %>% 
+  datatable(
+  extensions = 'FixedColumns',
+  options = list(
+    scrollX = TRUE,  
+    scrollY = "400px", 
+    paging = FALSE,     
+    fixedColumns = list(leftColumns = 1) 
+  ),
+  class = "stripe hover nowrap",  
+  rownames = FALSE  
+)
+```
+
 
 ## Preparación de los datos
 
@@ -321,6 +568,7 @@ IMPORTANTE: La primera vez que ejecutes este chunk desde la consola de R se te p
 gs4_deauth() 
 SeguimientoActividadesProyecto <- read_sheet('https://docs.google.com/spreadsheets/d/1W6VrcVWawxEk-b0zxrtVtOn-dtGl86BYEAWZ4qOYe0g/edit?usp=sharing') %>%
   as_tibble() 
+
 ```
 
 TOTAL HORAS TRABAJADAS EN EL PROYECTO : `r  round(sum(SeguimientoActividadesProyecto$MINUTES/60),digits=2)`
