@@ -216,10 +216,10 @@ Tras haber escrito un dataset previamente en la wiki para registrarlo, sin haber
 # LEER EL DATASET QUE HEMOS ALMACENADO EN MEMORIA
 dataset.name <- "nama_10r_2lp10"
 
-dataset.original <- read_csv(paste0("data/raw/", dataset.name, ".csv")) %>%
+dataset.original <- read_csv(paste0("data/", dataset.name, ".csv")) %>%
   as_tibble()
 
-dataset.info <- read_csv(paste0("data/processed/", dataset.name, "_info.csv")) %>% 
+dataset.info <- read_csv(paste0("data/", dataset.name, "_info.csv")) %>% 
     as_tibble()
 
 data <- dataset.original %>% 
@@ -526,16 +526,25 @@ data.fechas %>%
 
 Vamos a comenzar leyendo el dataset desde local, y haciendo una limpieza general de lo innecesario.
 
-```{r}
-data <- read_csv('data/raw/nama_10r_2lp10.csv') %>% 
+```{r, results=F}
+data_raw <- read_csv('data/nama_10r_2lp10.csv') %>% 
     as_tibble()
 
-data
+data_raw
 ```
-Como vimos en el apartado de 'Comprensión de los Datos', la columna <freq> siempre tiene el mismo valor 'A' para todas las observaciones, por lo que podemos quitarla ya que no aporta ninguna información.
-```{r}
-data <- data %>% 
-    select(-freq)
+Renombramos algunas variables, aliminamos alguna innecesaria, y a añadimos una columna con el nombre completo de las regiones a las que hace referencia geo.
+
+```{r, results=F}
+real_names <- read_csv('data/eurostac_real_nuts.csv') %>% 
+    as_tibble()
+
+
+data <- data_raw %>% 
+    select(-freq) %>% 
+    rename(year = TIME_PERIOD, sector = nace_r2, item = na_item) %>% 
+    left_join(real_names, by='geo') %>% 
+    select(geo, NUTS, full_name, year, sector, item, unit, values)
+    
 
 data
 ```
