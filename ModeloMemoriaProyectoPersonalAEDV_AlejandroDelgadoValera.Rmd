@@ -18,11 +18,144 @@ PARA CREAR UN CHUNK NUEVO USAR BOTÓN VERDE CON UNA "C" EN LA PARTE SUPERIOR DER
 <!-- Opcionalmente, el formateo de este documento en HTML se puede mejorar usando CSS --> 
 
 ```{css, echo=F}
+/* === Estilo general del documento === */
 body {
-  text-align: justify;
+font-family: "Times New Roman", serif;
+font-size: 16px;
+line-height: 1.6;
+color: #222;
+background-color: #ffffff;
+margin: 40px;
 }
+
+/* === Títulos === */
+h1, h2, h3, h4 {
+font-family: "Georgia", serif;
+color: #1a1a1a;
+margin-top: 1.5em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+}
+
+h1 {
+font-size: 1.9em;
+border-bottom: 2px solid #444;
+padding-bottom: 0.2em;
+}
+
+h2 {
+font-size: 1.5em;
+color: #2a2a2a;
+border-left: 4px solid #888;
+padding-left: 0.5em;
+}
+
+h3 {
+font-size: 1.25em;
+color: #333;
+font-style: italic;
+}
+
+/* === Párrafos y texto === */
+p {
+text-align: justify;
+margin-bottom: 1em;
+}
+
+/* === Figuras y tablas === */
+figure, .figure {
+text-align: center;
+margin: 1.5em auto;
+}
+
+img, .plot {
+display: block;
+margin: 0 auto;
+max-width: 90%;
+}
+
+table {
+border-collapse: collapse;
+margin: 1em auto;
+width: 90%;
+font-size: 0.95em;
+}
+
+th, td {
+border: 1px solid #ccc;
+padding: 8px 12px;
+text-align: center;
+}
+
+th {
+background-color: #f5f5f5;
+font-weight: bold;
+}
+
+/* === Pie de figuras === */
+.caption {
+font-size: 0.9em;
+color: #555;
+text-align: center;
+margin-top: 0.3em;
+font-style: italic;
+}
+
+/* === Código y chunks === */
+pre, code {
+font-family: "Courier New", monospace;
+background-color: #f8f8f8;
+border-radius: 4px;
+padding: 2px 5px;
+}
+
+pre {
+padding: 10px;
+overflow-x: auto;
+border: 1px solid #e0e0e0;
+}
+
+/* === Estilo para las gráficas generadas con ggplot === */
+.gm-plot, .plotly, .html-widget, .figure, .ggplot {
+  font-family: "Times New Roman", serif;
+  font-size: 14px;
+  color: #222;
+}
+
+
+/* === Márgenes de página === */
+@page {
+margin: 2.5cm 2cm;
+}
+
 ```
 
+```{r setup-ggplot-theme, include=FALSE}
+library(ggplot2)
+
+# Tema global para todos los gráficos
+theme_set(
+  theme_minimal(base_family = "Times New Roman") + 
+    theme(
+      # Títulos y subtítulos
+      plot.title = element_text(face = "bold", size = 16, hjust = 0.5, color = "#222222"),
+      plot.subtitle = element_text(face = "italic", size = 14, hjust = 0.5, color = "#444444"),
+      
+      # Ejes
+      axis.title = element_text(face = "bold", size = 14, color = "#222222"),
+      axis.text = element_text(size = 12, color = "#222222"),
+      
+      # Leyenda
+      legend.title = element_text(face = "bold", size = 13, color = "#222222"),
+      legend.text = element_text(size = 12, color = "#222222"),
+      
+      # Espaciado general
+      plot.margin = margin(15, 15, 15, 15),
+      panel.grid.major = element_line(color = "#e0e0e0"),
+      panel.grid.minor = element_blank()
+    )
+)
+```
 
 ```{r,echo=FALSE}
 # OPCIONES POR DEFECTO AL COMPILAR LOS CHUNKS 
@@ -56,6 +189,7 @@ library(tidyverse)
 library(readr)
 library(eurostat)
 
+theme_set(theme_minimal(base_family = "Times New Roman"))
 
 # asociamos funciones a determinadas librerías para evitar posibles errores 
 filter <- dplyr::filter # Filtra filas según condiciones
@@ -283,9 +417,9 @@ Valores posibles:
 
 - **na_item**: Tipo de indicador económico relacionado con los costes laborales y las horas trabajadas.  
 
-  - *D1_SAL_HW*: Coste laboral por hora trabajada, que incluye sueldos, salarios y cotizaciones sociales pagadas por el empleador (*euros por hora*).  
-  - *D1_SAL_PER*: Coste laboral medio por persona empleada, considerando tanto la remuneración directa como las contribuciones sociales a cargo de la empresa (*euros por empleado*).  
-  - *HW_EMP*: Horas efectivamente trabajadas por persona empleada en promedio, es decir, el total de horas dedicadas al trabajo dividido entre el número de empleados (*horas por empleado*).  
+  - D1_SAL_HW: Coste laboral por hora trabajada, que incluye sueldos, salarios y cotizaciones sociales pagadas por el empleador (*euros por hora*).  
+  - D1_SAL_PER: Coste laboral medio por persona empleada, considerando tanto la remuneración directa como las contribuciones sociales a cargo de la empresa (*euros por empleado*).  
+  - HW_EMP: Horas efectivamente trabajadas por persona empleada en promedio, es decir, el total de horas dedicadas al trabajo dividido entre el número de empleados (*horas por empleado*).  
 <br> 
 
 - **unit**: Unidad de medida de los valores registrados para cada indicador.  
@@ -765,7 +899,7 @@ SeguimientoActividadesProyecto <- read_sheet('https://docs.google.com/spreadshee
 TOTAL HORAS TRABAJADAS EN EL PROYECTO : `r  round(sum(SeguimientoActividadesProyecto$MINUTES/60),digits=2)`
 
 
-```{r}
+```{r, fig.width=9}
 actividades <- c("Introducción","Aportaciones del trabajo","Compresión del negocio","Comprensión de los datos","Preparación de los datos","Modelado","Evaluación","Despliegue","Conclusiones y Trabajo Futuro","Otros")
 p <- SeguimientoActividadesProyecto%>%
   group_by(ACTIVITY)%>%
