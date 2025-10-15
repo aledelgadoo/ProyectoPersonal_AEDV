@@ -56,6 +56,7 @@ library(tidyverse)
 library(readr)
 library(eurostat)
 
+
 # asociamos funciones a determinadas librerías para evitar posibles errores 
 filter <- dplyr::filter # Filtra filas según condiciones
 select <- dplyr::select # Selecciona columnas
@@ -70,6 +71,27 @@ slice<- dplyr::slice # Selecciona filas por posición
 relocate<- dplyr::relocate # Reordena columnas
 
 selectInput <- shiny::selectInput
+
+# Función de Pareto
+# Dado un vector de números y un nivel de significancia de Pareto, calcula el valor del vector tal que la suma de los valores por encima de ese valor supera el total de la suma multiplicado por el nivel de significancia.
+
+ParetoValue <- function(
+v, # vector numérico
+ParetoSignificancia # número en [0,1] con el grado de significancia de Pareto
+){
+
+    x <- sort(v,decreasing = TRUE)
+    return(x[which(cumsum(x)>=ParetoSignificancia*sum(x))[1]])
+}
+
+ParetoValue <- function(
+v, # vector numérico
+ParetoSignificancia # número en [0,1] con el grado de significancia de Pareto
+){
+
+    x <- sort(v,decreasing = TRUE)
+    return(x[which(cumsum(x)>=ParetoSignificancia*sum(x))[1]])
+}
 ```
 
 <!-- Todos los proyectos personales tienen que tener un cuadro de mandos (Tema 7 de la asignatura) cuya dirección es similar a la que sigue poniendo tu nº de usuario (en lugar de a2405) y el nombre del Rmd asociado. Los cuadros de mando se alojan en un servidor del DIS y solo se puede acceder a ellos a través de la red de la ULPGC o usando VPN -->
@@ -524,16 +546,13 @@ data.fechas %>%
 ## Preparación de los datos
 <!-- desarrollo de esta fase -->
 
-Vamos a comenzar leyendo el dataset desde local, y haciendo una limpieza general de lo innecesario.
-
+Vamos a comenzar leyendo el dataset desde local, y haciendo una limpieza general de lo innecesario. Renombramos algunas variables, aliminamos alguna innecesaria, y a añadimos una columna con el nombre completo de las regiones a las que hace referencia geo.
 ```{r, results=F}
 data_raw <- read_csv('data/nama_10r_2lp10.csv') %>% 
     as_tibble()
 
 data_raw
 ```
-Renombramos algunas variables, aliminamos alguna innecesaria, y a añadimos una columna con el nombre completo de las regiones a las que hace referencia geo.
-
 ```{r, results=F}
 real_names <- read_csv('data/eurostac_real_nuts.csv') %>% 
     as_tibble()
@@ -548,7 +567,100 @@ data <- data_raw %>%
 
 data
 ```
+Inicialmente, vamos a comparar diferentes países según los indicadores que tenemos en el dataset.  
+<br>
+En primer lugar, analizamos los países con mayor y menor cantidad de horas trabajadas en promedio por empleado durante los últimos cinco años. Los valores representan las horas efectivas trabajadas por semana por trabajador, calculadas a partir de los datos anuales disponibles. La línea roja en cada gráfico indica el valor correspondiente a España, para situar su posición relativa frente a los demás países.
+```{r, fig.width=8, fig.height=6}
+tb <- data %>% 
+    filter(item=="HW_EMP", unit=="HW", NUTS==0, year>=2018) %>% 
+    group_by(full_name) %>% 
+    summarise(mean_hours=mean(values)) %>% 
+    ungroup() %>% 
+    mutate(mean_hours_week = mean_hours / 52.18) %>%  # Para obtener horas por semana (365.25 / 7)
+    select(full_name, mean_hours_week) %>% 
+    arrange(desc(mean_hours_week)) 
+    
+tb_top <- head(tb, 10)
+tb_bottom <- tail(tb, 10)
 
+valor_españa <- tb %>%
+  filter(full_name == "Spain") %>%
+  pull(mean_hours_week)
+
+tb_top %>% mutate(full_name = factor(full_name, levels=(unique(full_name)))) %>% 
+    ggplot(aes(x=full_name, y=mean_hours_week, fill=full_name)) +
+    geom_bar(stat = "identity") +
+    geom_hline(yintercept = valor_españa, color = "red", linetype = "dashed", linewidth = 0.8) + # Valor de España como referencia
+    geom_text(aes(label = round(mean_hours_week, 1)), vjust = -0.1, size = 3) +
+    labs(x="",y="Horas / semana", title = "Países con mayor carga laboral media semanal por empleado") +
+    theme_minimal(base_size = 14) + # Aplica el estilo  y ajusta el tamaño de la tipografía
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1)) + # Quita la leyenda y pone los nombres 45º
+    annotate("text", x = length(unique(tb_bottom$full_name)) + 1.45, 
+             y = valor_españa, label = "España", color = "red", vjust = -0.5, hjust = 1.1, size = 4)
+
+tb_bottom %>% mutate(full_name = factor(full_name, levels=(unique(full_name)))) %>% 
+    ggplot(aes(x=full_name, y=mean_hours_week, fill=full_name)) +
+    geom_bar(stat = "identity") +
+    geom_hline(yintercept = valor_españa, color = "red", linetype = "dashed", linewidth = 0.8) + # Valor de España como referencia
+    geom_text(aes(label = round(mean_hours_week, 1)), vjust = -0.1, size = 3) +
+    labs(x="",y="Horas / semana", title = "Países con menor carga laboral media semanal por empleado") +
+    theme_minimal(base_size = 14) + # Aplica el estilo  y ajusta el tamaño de la tipografía
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1)) + # Quita la leyenda y pone los nombres 45º
+    annotate("text", x = length(unique(tb_bottom$full_name)) + 0.5, 
+             y = valor_españa, label = "España", color = "red", vjust = -0.5, hjust = 1.1, size = 4)
+    
+```
+
+A continuación, vamos a comparar los países en base al coste laboral por hora trabajada. Esta variable, no representa lo que el trabajador cobra neto, sino lo que cuesta al empleador una hora de trabajo. En pocas palabras, es el coste total soportado por el empleador por cada hora efectivamente trabajada por sus empleados. Vamos a comprobar usando el principio de Pareto los países más relevantes en este aspecto.
+
+```{r}
+# Modificamos la tabla
+tb <- data %>%
+    filter(item == "D1_SAL_HW", unit == "EUR", NUTS == 0, year >= 2018) %>%
+    group_by(full_name) %>%
+    summarise(mean_value = mean(values, na.rm = TRUE)) %>%
+    ungroup()
+
+# Calculamos el valor de Pareto
+pareto <- ParetoValue(tb$mean_value, 0.67) # Para quedarnos con 12 justo
+
+tb_top <- tb %>%
+    filter(mean_value >= pareto) %>% 
+    arrange(mean_value)
+
+# Graficamos
+tb_top %>% mutate(full_name = factor(full_name, levels=(unique(full_name)))) %>% 
+    ggplot(aes(x=full_name, y=mean_value, fill=full_name)) +
+    geom_bar(stat = "identity") +
+    labs(x="",y="Paises con un mayor coste laboral por hora trabajada") + 
+    coord_flip() + # Cambia los ejes x <-> y
+    theme_minimal(base_size = 14) + # Aplica el estilo  y ajusta el tamaño de la tipografía
+    theme(legend.position = "none") # Quita la leyenda
+```
+<br><br>
+Vamos a ver como ha sido la evolución de cada uno de estos países.
+```{r, results=F}
+tb_top_evol <- data %>% 
+    filter(full_name %in% tb_top$full_name, NUTS==0, item=="D1_SAL_HW", unit=="EUR") %>%
+    group_by(full_name, year) %>% 
+    summarise(mean_value = mean(values, na.rm = TRUE)) %>%  # media sobre todos los sectores
+    ungroup() %>% 
+    select(full_name, year, mean_value) %>% 
+    arrange(mean_value)
+
+tb_top_evol
+```
+
+```{r}
+tb_top_evol %>% 
+    ggplot(aes(x=year,y=mean_value)) +
+    geom_line() +
+    labs(x="",y="Evolución del coste por hora trabajada") +
+    facet_wrap(~full_name) +
+    theme_minimal(base_size = 14) +
+    theme(axis.text.x = element_text(angle = 45,hjust=1)) +
+    theme(legend.position = "bottom")
+```
 
 
 ## Modelado
@@ -594,7 +706,6 @@ IMPORTANTE: La primera vez que ejecutes este chunk desde la consola de R se te p
 gs4_deauth() 
 SeguimientoActividadesProyecto <- read_sheet('https://docs.google.com/spreadsheets/d/1W6VrcVWawxEk-b0zxrtVtOn-dtGl86BYEAWZ4qOYe0g/edit?usp=sharing') %>%
   as_tibble() 
-
 ```
 
 TOTAL HORAS TRABAJADAS EN EL PROYECTO : `r  round(sum(SeguimientoActividadesProyecto$MINUTES/60),digits=2)`
