@@ -848,7 +848,36 @@ tb %>% ggplot(aes(x = reorder(sector_name, mean_value),
     
 
 ```
+Vamos a relacionar ahora el precio por hora trabajada con los países más releventes en este aspecto.
 
+```{r, fig.width=10}
+countries_pareto <- data %>%
+    filter(item == "D1_SAL_HW", unit == "EUR", NUTS == 0, year >= 2018) %>%
+    group_by(full_name) %>%
+    summarise(mean_value = mean(values, na.rm = TRUE)) %>%
+    ungroup() %>% 
+    filter(mean_value >= pareto) %>% 
+    pull(full_name)
+
+top_countries <- data %>% 
+    filter(item=="D1_SAL_HW", unit=="PC_EU27_2020_MEUR_CP", year>=2018, full_name %in% countries_pareto) %>% 
+    group_by(full_name, sector_name) %>%
+    summarise(mean_value = mean(values, na.rm = TRUE)) %>% 
+    ungroup() %>% 
+    filter(mean_value>=pareto)
+    
+
+top_countries %>% 
+    ggplot(aes(reorder(full_name, -mean_value),sector_name,fill=mean_value)) +
+    geom_tile(aes(color = sector_name == "Total actividades"), linewidth = 0.75) +
+    scale_color_manual(values = c("TRUE" = "black", "FALSE" = "grey80"), guide = "none") +
+    scale_fill_gradient(low = "white", high = "steelblue") +
+    geom_text(aes(label = round(mean_value,1)), color = "black") +
+    labs(x="",y="") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    
+
+```
 
 ## Modelado
 
