@@ -20,7 +20,7 @@ PARA CREAR UN CHUNK NUEVO USAR BOTÓN VERDE CON UNA "C" EN LA PARTE SUPERIOR DER
 ```{css, echo=F}
 /* === Estilo general del documento === */
 body {
-font-family: "Times New Roman", serif;
+font-family: "Georgia", serif;
 font-size: 16px;
 line-height: 1.6;
 color: #222;
@@ -117,7 +117,7 @@ border: 1px solid #e0e0e0;
 
 /* === Estilo para las gráficas generadas con ggplot === */
 .gm-plot, .plotly, .html-widget, .figure, .ggplot {
-  font-family: "Times New Roman", serif;
+  font-family: "Georgia", serif;
   font-size: 14px;
   color: #222;
 }
@@ -135,7 +135,7 @@ library(ggplot2)
 
 # Tema global para todos los gráficos
 theme_set(
-  theme_minimal(base_family = "Times New Roman") + 
+  theme_minimal(base_family = "Georgia") + 
     theme(
       # Títulos y subtítulos
       plot.title = element_text(face = "bold", size = 16, hjust = 0.5, color = "#222222"),
@@ -723,7 +723,7 @@ data
 Inicialmente, vamos a comparar diferentes países según los indicadores que tenemos en el dataset.  
 <br>
 En primer lugar, analizamos los países con mayor y menor cantidad de horas trabajadas en promedio por empleado durante los últimos cinco años. Los valores representan las horas efectivas trabajadas por semana por trabajador, calculadas a partir de los datos anuales disponibles. La línea roja en cada gráfico indica el valor correspondiente a España, para situar su posición relativa frente a los demás países.
-```{r, fig.width=8, fig.height=6}
+```{r, fig.width=8, fig.height=5.5}
 tb <- data %>% 
     filter(item=="HW_EMP", unit=="HW", NUTS==0, year>=2018) %>% 
     group_by(full_name) %>% 
@@ -794,7 +794,7 @@ tb_top %>% mutate(full_name = factor(full_name, levels=(unique(full_name)))) %>%
 Vamos a ver como ha sido la evolución de cada uno de estos países.
 ```{r, results=F}
 tb_top_evol <- data %>% 
-    filter(full_name %in% tb_top$full_name, NUTS==0, item=="D1_SAL_HW", unit=="EUR") %>%
+    filter(full_name %in% tb_top$full_name, NUTS==0, item=="D1_SAL_HW", unit=="EUR", year>=2000) %>%
     group_by(full_name, year) %>% 
     summarise(mean_value = mean(values, na.rm = TRUE)) %>%  # media sobre todos los sectores
     ungroup() %>% 
