@@ -890,8 +890,88 @@ top_comunidades_ES %>% rename(`Valor medio` = mean_value) %>%
 
 
 ## Modelado
-
 <!-- desarrollo de esta fase -->
+Comenenzaremos evaluando la la evolución de las horas trabajadas en España. 
+
+```{r, results=F}
+horas.españa <- data %>% 
+    filter(geo == "ES", item=="HW_EMP", unit=="HW") %>% 
+    select(year, values) %>% 
+    as_tsibble(index = year) %>% 
+    fill_gaps()
+
+horas.españa
+```
+
+```{r}
+horas.españa %>% 
+    autoplot() +
+    labs(title = "Evolución de las horas trabajadas anualmente en España", x="Año", y="Horas")
+```
+Para las futuras predicciones vamos a omitir el dato del año 2020
+
+```{r, results=FALSE}
+horas.españa.omit.covid <- horas.españa %>% 
+    filter(year!=2020) %>%
+    fill_gaps()
+
+
+horas.españa.omit.covid
+```
+Vamos a ver ahora como se posiciona Canarias en esta serie temporal
+
+```{r}
+comparacion.ES_IC <- data %>% 
+    filter(geo %in% c("ES", "ES7"), item=="HW_EMP", unit=="HW") %>% 
+    select(year, geo, values) %>% 
+    mutate(geo = ifelse(geo == "ES7", "Canarias", "España"),
+             # Para que salga España primero como en el de abajo y mantener coherencia 
+           geo = factor(geo, levels = c("España", "Canarias"))) %>% 
+    as_tsibble(index = year, key = geo) %>% 
+    fill_gaps()
+
+
+# CAMBIAR EL ORDEN EN EL QUE SE MUESTRA, PRIMERO ES COMO EN EL DE ABAJO
+comparacion.ES_IC %>% rename(Región = geo) %>% 
+    autoplot() +
+    labs(title = "Horas anuales - ES vs IC", x="Año",y="Horas") %>% 
+    scale_color_manual(values = c("Canarias" = "steelblue", "España" = "red"))
+```
+
+
+
+Vamos a ver esta evolución comparada con la media para los países de la Unión Europea
+
+```{r}
+comparacion.ES_UE <- data %>% 
+    filter(geo %in% c("ES", "EU27_2020"), item=="HW_EMP", unit=="HW") %>% 
+    select(year, geo, values) %>% 
+    mutate(geo = ifelse(geo == "EU27_2020", "Unión Europea", "España")) %>% 
+    as_tsibble(index = year, key = geo) %>% 
+    fill_gaps()
+
+comparacion.ES_UE %>% rename(Región = geo) %>% 
+    autoplot() +
+    labs(title = "Horas anuales - ES vs UE", x = "Año", y = "Horas") +
+    scale_color_manual(values = c("Unión Europea" = "green", "España" = "red"))
+```
+
+Empezamos con ARIMA.  
+Vamos a predecir los próximos 5 años en España.
+
+```{r}
+horas.españa.omit.covid.arima <- horas.españa.omit.covid %>% 
+    model(ARIMA(values))
+
+horas.españa.omit.covid.prediccion <- horas.españa.omit.covid.arima %>%
+     forecast(h="5 years")
+
+horas.españa.omit.covid.prediccion %>% 
+    autoplot(horas.españa) +
+    labs(title = "Horas trabajadas anuales en ES - Predicción futura", x = "Año", y = "Horas")
+```
+
+
 
 ## Evaluación
 
