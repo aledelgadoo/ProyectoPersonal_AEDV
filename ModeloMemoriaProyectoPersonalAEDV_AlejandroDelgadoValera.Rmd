@@ -934,7 +934,7 @@ comparacion.ES_IC <- data %>%
 # CAMBIAR EL ORDEN EN EL QUE SE MUESTRA, PRIMERO ES COMO EN EL DE ABAJO
 comparacion.ES_IC %>% rename(Región = geo) %>% 
     autoplot() +
-    labs(title = "Horas anuales - ES vs IC", x="Año",y="Horas") %>% 
+    labs(title = "Horas anuales - ES vs IC", x="Año",y="Horas") +
     scale_color_manual(values = c("Canarias" = "steelblue", "España" = "red"))
 ```
 
