@@ -673,14 +673,14 @@ data.fechas %>%
 ## Preparación de los datos
 <!-- desarrollo de esta fase -->
 
-Vamos a comenzar leyendo el dataset desde local, y haciendo una limpieza general de lo innecesario. Renombramos algunas variables, aliminamos alguna innecesaria, y a añadimos una columna con el nombre completo de las regiones a las que hace referencia geo.
-```{r, results=F}
+Vamos a comenzar leyendo el dataset desde local y realizando una limpieza general de los datos innecesarios. Renombramos algunas variables, eliminamos columnas que no aportan información relevante y añadimos una columna con el nombre completo de las regiones a las que hace referencia la variable `geo`.
+```{r analisis-data-raw, results=F}
 data_raw <- read_csv('data/nama_10r_2lp10.csv') %>% 
     as_tibble()
 
 data_raw
 ```
-```{r, results=F}
+```{r analisis-inicial, results=F}
 real_names <- read_csv('data/eurostac_real_nuts.csv') %>% 
     as_tibble()
 
@@ -713,10 +713,32 @@ data <- data_raw %>%
 
 data
 ```
-Inicialmente, vamos a comparar diferentes países según los indicadores que tenemos en el dataset.  
+Una vez estructurados y limpiados los datos, exploraremos inicialmente las diferencias entre países según los indicadores disponibles en el dataset. Esto nos permitirá identificar patrones generales, contrastar la posición de España frente a otros países y preparar los datos para un análisis más detallado a nivel sectorial y regional.  
 <br>
-En primer lugar, analizamos los países con mayor y menor cantidad de horas trabajadas en promedio por empleado durante los últimos cinco años. Los valores representan las horas efectivas trabajadas por semana por trabajador, calculadas a partir de los datos anuales disponibles. La línea roja en cada gráfico indica el valor correspondiente a España, para situar su posición relativa frente a los demás países.
-```{r, fig.width=8, fig.height=5.5}
+
+En primer lugar, analizamos la evolución del coste laboral por hora trabajada en distintos países. Cada línea representa un país, mostrando tendencias de crecimiento o reducción a lo largo del tiempo, lo que nos permite situar a España en un contexto internacional.
+```{r evolucion-coste-hora-paises}
+seleccion_paises <- c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Ireland", "Italy", "Luxembourg", "Netherlands", "Spain", "Sweden")
+
+tb_top_evol <- data %>% 
+    filter(full_name %in% seleccion_paises, NUTS==0, item=="D1_SAL_HW", unit=="EUR", year>=2000) %>%
+    group_by(full_name, year) %>% 
+    summarise(mean_value = mean(values, na.rm = TRUE)) %>%  # media sobre todos los sectores
+    ungroup() %>% 
+    select(full_name, year, mean_value) %>% 
+    arrange(mean_value)
+
+tb_top_evol %>% mutate(full_name = factor(full_name, levels=(unique(full_name)))) %>% 
+    ggplot(aes(x=year,y=mean_value)) +
+    geom_line() +
+    labs(x="",y="", title="Evolución del coste por hora trabajada") +
+    facet_wrap(~full_name) +
+    theme(axis.text.x = element_text(angle = 45,hjust=1)) +
+    theme(legend.position = "bottom")
+```
+
+A continuación, examinamos los diez países con mayor y menor carga laboral promedio por empleado. Los valores reflejan horas efectivas trabajadas por semana, y la línea roja indica la posición de España para contextualizar su situación frente a estos países.
+```{r top-bottom-carga-laboral, fig.width=8, fig.height=5.5}
 tb <- data %>% 
     filter(item=="HW_EMP", unit=="HW", NUTS==0, year>=2018) %>% 
     group_by(full_name) %>% 
@@ -756,9 +778,8 @@ tb_bottom %>% mutate(full_name = factor(full_name, levels=(unique(full_name)))) 
     
 ```
 
-A continuación, vamos a comparar los países en base al coste laboral por hora trabajada. Esta variable, no representa lo que el trabajador cobra neto, sino lo que cuesta al empleador una hora de trabajo. En pocas palabras, es el coste total soportado por el empleador por cada hora efectivamente trabajada por sus empleados. Vamos a comprobar usando el principio de Pareto los países más relevantes en este aspecto.
-
-```{r}
+Luego, mostramos los países con mayor coste laboral por hora trabajada. Se incluyen los datos más recientes disponibles (2018-2023).
+```{r mayor-coste-laboral-hora}
 # Modificamos la tabla
 tb <- data %>%
     filter(item == "D1_SAL_HW", unit == "EUR", NUTS == 0, year >= 2018) %>%
@@ -783,32 +804,56 @@ tb_top %>% mutate(full_name = factor(full_name, levels=(unique(full_name)))) %>%
     theme(legend.position = "none") + # Quita la leyenda
     ylim(0, max(tb_top$mean_value) + 0.6)  # deja espacio a la derecha para el texto
 ```
-<br><br>
-Vamos a ver como ha sido la evolución de cada uno de estos países.
-```{r, results=F}
-tb_top_evol <- data %>% 
-    filter(full_name %in% tb_top$full_name, NUTS==0, item=="D1_SAL_HW", unit=="EUR", year>=2000) %>%
-    group_by(full_name, year) %>% 
-    summarise(mean_value = mean(values, na.rm = TRUE)) %>%  # media sobre todos los sectores
+
+Para complementar la visión internacional, se incluye un mapa de calor que compara el coste medio por sector entre distintos países. Los colores más intensos indican costes más altos, facilitando la identificación de sectores más costosos en cada país. Usaremos el indicador `PC_EU27_2020_MEUR_CP`, que muestra el porcentaje que representa cada país respecto al total de la Unión Europea (UE27) en precios corrientes. Usaremos los datos más recientes (2018-2023).
+```{r heatmap-sector-paises, fig.width=10}
+countries_pareto <- data %>%
+    filter(item == "D1_SAL_HW", unit == "EUR", NUTS == 0, year >= 2018) %>%
+    group_by(full_name) %>%
+    summarise(mean_value = mean(values, na.rm = TRUE)) %>%
     ungroup() %>% 
-    select(full_name, year, mean_value) %>% 
-    arrange(mean_value)
+    filter(mean_value >= pareto) %>% 
+    pull(full_name)
 
-tb_top_evol
+top_countries <- data %>% 
+    filter(item=="D1_SAL_HW", unit=="PC_EU27_2020_MEUR_CP", year>=2018, full_name %in% countries_pareto) %>% 
+    group_by(full_name, sector_name) %>%
+    summarise(mean_value = mean(values, na.rm = TRUE)) %>% 
+    ungroup() %>% 
+    filter(mean_value>=pareto)
+    
+
+top_countries %>% rename(`Valor medio` = mean_value) %>% 
+    ggplot(aes(reorder(full_name, -`Valor medio`),sector_name,fill=`Valor medio`)) +
+    geom_tile(aes(color = sector_name == "Total actividades"), linewidth = 0.75) +
+    scale_color_manual(values = c("TRUE" = "black", "FALSE" = "grey80"), guide = "none") +
+    scale_fill_gradient(low = "white", high = "steelblue") +
+    geom_text(aes(label = round(`Valor medio`,1)), color = "black") +
+    labs(x="",y="", title="Coste laboral medio por sector y país") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-```{r}
-tb_top_evol %>% mutate(full_name = factor(full_name, levels=(unique(full_name)))) %>% 
-    ggplot(aes(x=year,y=mean_value)) +
-    geom_line() +
-    labs(x="",y="Evolución del coste por hora trabajada") +
-    facet_wrap(~full_name) +
-    theme(axis.text.x = element_text(angle = 45,hjust=1)) +
-    theme(legend.position = "bottom")
+Vamos a hacer lo mismo ahora para las comunidades autónomas de España, usando el indicador `EUR`, que representa el valor del precio medio por hora trabajada expresado directamente en euros. Usaremos también los datos más recientes (2018-2023).
+```{r heatmap-sector-comunidades, fig.width=12.5, fig.height=7.5}
+top_comunidades_ES <- data %>% 
+    filter(item=="D1_SAL_HW", unit=="EUR", year>=2018, substr(geo, 1, 2) == "ES",NUTS==2, full_name!="Spain") %>% 
+    group_by(full_name, sector_name) %>%
+    summarise(mean_value = mean(values, na.rm = TRUE)) %>% 
+    ungroup()
+    
+
+top_comunidades_ES %>% rename(`Valor medio` = mean_value) %>% 
+    ggplot(aes(reorder(full_name, -`Valor medio`),sector_name,fill=`Valor medio`)) +
+    geom_tile(aes(color = sector_name == "Total actividades"), linewidth = 0.75) +
+    scale_color_manual(values = c("TRUE" = "black", "FALSE" = "grey80"), guide = "none") +
+    scale_fill_gradient(low = "white", high = "steelblue") +
+    geom_text(aes(label = round(`Valor medio`,1)), color = "black") +
+    labs(x="",y="", title="Coste laboral medio por sector y comunidad autónoma (España)") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-Compararemos ahora la remuneración por hora trabajada según el sector en los últimos 5 años.
-```{r, fig.width=10}
+A continuación, comparamos el coste medio por hora trabajada según el sector laboral en España. Este gráfico permite identificar los sectores con salarios más altos y más bajos por hora, facilitando el análisis comparativo entre ellos.
+```{r precio-hora-por-sector, fig.width=10}
 tb <- data %>% 
     filter(year>=2018, item=="D1_SAL_HW", unit=="EUR") %>% 
     group_by(sector_name) %>% 
@@ -838,54 +883,54 @@ tb %>% ggplot(aes(x = reorder(sector_name, mean_value),
     geom_text(aes(label = round(mean_value, 1)), hjust = -0.2) +
     theme(legend.position = "none")    
 ```
-Vamos a relacionar ahora el precio por hora trabajada con los países más relevantes en este aspecto en los últimos 5 años, usando el indicador “PC_EU27_2020_MEUR_CP”, que muestra el porcentaje que representa cada país respecto al total de la Unión Europea (UE27) en precios corrientes.
 
-```{r, fig.width=10}
-countries_pareto <- data %>%
-    filter(item == "D1_SAL_HW", unit == "EUR", NUTS == 0, year >= 2018) %>%
-    group_by(full_name) %>%
+Seguido de esto, se muestra la participación de cada sector en el coste laboral medio total de España durante 2023 mediante un gráfico por secciones. Esto permite analizar qué sectores contribuyen más o menos al coste global.
+```{r coste-sector-espana-2023, fig.height=5, fig.width=7.5}
+tb <- data %>%
+    filter(geo == "ES", item == "D1_SAL_HW", unit == "EUR", year == 2023, sector!="TOTAL") %>%
+    group_by(sector_name) %>%
     summarise(mean_value = mean(values, na.rm = TRUE)) %>%
-    ungroup() %>% 
-    filter(mean_value >= pareto) %>% 
-    pull(full_name)
+    mutate(perc = mean_value / sum(mean_value) * 100, label = paste0(round(perc, 1), "%"))
 
-top_countries <- data %>% 
-    filter(item=="D1_SAL_HW", unit=="PC_EU27_2020_MEUR_CP", year>=2018, full_name %in% countries_pareto) %>% 
-    group_by(full_name, sector_name) %>%
-    summarise(mean_value = mean(values, na.rm = TRUE)) %>% 
-    ungroup() %>% 
-    filter(mean_value>=pareto)
-    
-
-top_countries %>% rename(`Valor medio` = mean_value) %>% 
-    ggplot(aes(reorder(full_name, -`Valor medio`),sector_name,fill=`Valor medio`)) +
-    geom_tile(aes(color = sector_name == "Total actividades"), linewidth = 0.75) +
-    scale_color_manual(values = c("TRUE" = "black", "FALSE" = "grey80"), guide = "none") +
-    scale_fill_gradient(low = "white", high = "steelblue") +
-    geom_text(aes(label = round(`Valor medio`,1)), color = "black") +
-    labs(x="",y="") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
-    
-
+tb %>% ggplot(aes(x = 2, y = perc, fill = reorder(sector_name, perc))) +
+    geom_col(width = 1, color = "white") +
+    coord_polar("y", start = pi/2) + # Para rotar el circulo
+    xlim(0.7, 2.5) + # El radio de donde se hace el gráfico
+    geom_text(aes(label = label), position = position_stack(vjust = 0.5), size = 3) +
+    labs(title = "Coste laboral medio por sector (España, 2023)", fill = "Sector", x="", y="") +
+    scale_y_continuous(labels = NULL) +  # quitar los números del eje
+    theme(axis.text.y = element_blank())     # quita los números del eje
 ```
-Vamos a hacer lo mismo ahora para las comunidades autónomas de España, usando el indicador “EUR”, que representa el valor del precio medio por hora trabajada expresado directamente en euros.
 
-```{r, fig.width=12.5, fig.height=7.5}
-top_comunidades_ES <- data %>% 
-    filter(item=="D1_SAL_HW", unit=="EUR", year>=2018, substr(geo, 1, 2) == "ES",NUTS==2, full_name!="Spain") %>% 
-    group_by(full_name, sector_name) %>%
-    summarise(mean_value = mean(values, na.rm = TRUE)) %>% 
-    ungroup()
+Para entender la variabilidad interna, se incluye un boxplot del coste laboral medio por persona empleada. Este gráfico permite observar los valores típicos, la dispersión y posibles valores atípicos dentro de los distintos sectores y regiones.
+```{r boxplot-coste-persona}
+seleccion_paises <- c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Ireland", "Italy", "Luxembourg", "Netherlands", "Spain", "Sweden")
+
+tb <- data %>% 
+    filter(NUTS == 0, item == "D1_SAL_PER", unit == "EUR", sector == "TOTAL", full_name %in% seleccion_paises) %>% 
+    select(full_name, year, values)
+
+tb %>%
+    ggplot(aes(x=reorder(full_name, -values),y=values,fill=full_name)) +
+    geom_boxplot() +
+    labs(x="", y="Coste anual (€)", title = "Coste laboral medio por persona empleada") +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
     
+```
 
-top_comunidades_ES %>% rename(`Valor medio` = mean_value) %>% 
-    ggplot(aes(reorder(full_name, -`Valor medio`),sector_name,fill=`Valor medio`)) +
-    geom_tile(aes(color = sector_name == "Total actividades"), linewidth = 0.75) +
-    scale_color_manual(values = c("TRUE" = "black", "FALSE" = "grey80"), guide = "none") +
-    scale_fill_gradient(low = "white", high = "steelblue") +
-    geom_text(aes(label = round(`Valor medio`,1)), color = "black") +
-    labs(x="",y="") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+Finalmente, se presenta un gráfico de dispersión comparando el coste laboral medio entre España y Canarias. Cada punto representa un sector o grupo de empleados, permitiendo visualizar diferencias y correlaciones entre ambos territorios.
+```{r dispersion-espana-canarias}
+tb <- data %>%  
+    filter(geo %in% c("ES", "ES7"), item == "D1_SAL_PER", unit == "EUR", sector == "TOTAL") %>% 
+    select(full_name, year, values) %>% 
+    pivot_wider(names_from = full_name, values_from = values)
+
+tb %>% 
+    ggplot(aes(x=Canarias,y=Spain)) +
+    geom_point() +
+    geom_smooth(method = lm, se = FALSE) +
+    labs(title="Gráfico de dispersión coste laboral anual - ES vs IC", y="España")
+    
 ```
 
 
