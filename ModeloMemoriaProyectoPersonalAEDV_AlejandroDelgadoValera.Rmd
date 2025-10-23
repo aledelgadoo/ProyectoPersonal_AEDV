@@ -892,7 +892,7 @@ tb %>% ggplot(aes(x = 2, y = perc, fill = reorder(sector_name, perc))) +
     theme(axis.text.y = element_blank())     # quita los números del eje
 ```
 
-Para entender la variabilidad interna, se incluye un boxplot del coste laboral medio por persona empleada. Este gráfico permite observar los valores típicos, la dispersión y posibles valores atípicos dentro de los distintos sectores y regiones.
+Para entender la variabilidad interna, se incluye un boxplot del coste laboral medio por persona empleada en los países de Europa analizados previamente. Este gráfico permite observar los valores típicos, la dispersión y posibles valores atípicos dentro de los distintos países.
 ```{r boxplot-coste-persona}
 seleccion_paises <- c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Ireland", "Italy", "Luxembourg", "Netherlands", "Spain", "Sweden")
 
