@@ -134,7 +134,7 @@ margin: 2.5cm 2cm;
 knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE,
-  cache=TRUE, # ponerlo a TRUE acelera la compilación pues solo recompila los chunks modificados. Es útil al escribir texto con mucho código que tarda tiempo en compilar. Puede fallar cuando unos chunks dependen de otros. En ese caso, o cuando hay errores que no entiendes, borra la carpeta auxiliar que se genera con la extensión "_cache" para obligar a recompilar todo. 
+  cache=T, # ponerlo a TRUE acelera la compilación pues solo recompila los chunks modificados. Es útil al escribir texto con mucho código que tarda tiempo en compilar. Puede fallar cuando unos chunks dependen de otros. En ese caso, o cuando hay errores que no entiendes, borra la carpeta auxiliar que se genera con la extensión "_cache" para obligar a recompilar todo. 
   echo=FALSE
 )
 ```
@@ -201,15 +201,6 @@ selectInput <- shiny::selectInput
 
 # Función de Pareto
 # Dado un vector de números y un nivel de significancia de Pareto, calcula el valor del vector tal que la suma de los valores por encima de ese valor supera el total de la suma multiplicado por el nivel de significancia.
-
-ParetoValue <- function(
-v, # vector numérico
-ParetoSignificancia # número en [0,1] con el grado de significancia de Pareto
-){
-
-    x <- sort(v,decreasing = TRUE)
-    return(x[which(cumsum(x)>=ParetoSignificancia*sum(x))[1]])
-}
 
 ParetoValue <- function(
 v, # vector numérico
@@ -600,7 +591,6 @@ data.geo %>%
 
 El dataset presenta 50 combinaciones únicas de variables categóricas (`freq`, `nace_r2`, `na_item`, `unit`), cumpliendo el criterio mínimo de tener al menos 5 atributos combinados con un número relativamente alto de observaciones (≈8600 observ.).  
 
-
 ```{r}
 vars <- colnames(data)[1:(ncol(data)-3)]
 vars <- vars[vars != "age"]
@@ -936,9 +926,11 @@ tb %>%
 
 ## Modelado
 <!-- desarrollo de esta fase -->
-Comenenzaremos evaluando la la evolución de las horas trabajadas en España. 
+En esta parte del análisis, nos centramos en estudiar la evolución temporal de las horas trabajadas en España y su remuneración por hora, para posteriormente aplicar modelos de predicción ARIMA que permitan estimar su posible comportamiento en los próximos años.  
 
-```{r, results=F}
+### Análisis de las horas trabajadas
+Comenzamos observando la evolución de las horas trabajadas en España durante el periodo disponible. Destaca la caída registrada en 2020, resultado del impacto de la pandemia y de la reducción de las horas efectivas trabajadas por los ERTE y las restricciones laborales.
+```{r evolucion-horas-españa-data, results=F}
 horas.españa <- data %>% 
     filter(geo == "ES", item=="HW_EMP", unit=="HW") %>% 
     select(year, values) %>% 
@@ -947,15 +939,14 @@ horas.españa <- data %>%
 
 horas.españa
 ```
-
-```{r}
+```{r evolucion-horas-españa}
 horas.españa %>% 
     autoplot() +
     labs(title = "Evolución de las horas trabajadas anualmente en España", x="Año", y="Horas")
 ```
-Para las futuras predicciones vamos a omitir el dato del año 2020
 
-```{r, results=FALSE}
+Para ajustar el modelo ARIMA de horas trabajadas, omitimos el año 2020, ya que la anomalía causada por la pandemia distorsionaría los parámetros del modelo.
+```{r evolucion-horas-españa-covid-data, results=FALSE}
 horas.españa.omit.covid <- horas.españa %>% 
     filter(year!=2020) %>%
     fill_gaps()
@@ -963,10 +954,10 @@ horas.españa.omit.covid <- horas.españa %>%
 
 horas.españa.omit.covid
 ```
-Vamos a ver ahora como se posiciona Canarias en esta serie temporal
 
-```{r}
-comparacion.ES_IC <- data %>% 
+A continuación, comparamos la evolución de España y Canarias, donde se aprecia que las horas trabajadas en Canarias son superiores a la media nacional, reflejando la particularidad de su mercado laboral y la mayor presencia de sectores con jornadas más largas.
+```{r evolucion-horas-españa-canarias}
+comparacion.ES_IC.horas <- data %>% 
     filter(geo %in% c("ES", "ES7"), item=="HW_EMP", unit=="HW") %>% 
     select(year, geo, values) %>% 
     mutate(geo = ifelse(geo == "ES7", "Canarias", "España"),
@@ -977,37 +968,42 @@ comparacion.ES_IC <- data %>%
 
 
 # CAMBIAR EL ORDEN EN EL QUE SE MUESTRA, PRIMERO ES COMO EN EL DE ABAJO
-comparacion.ES_IC %>% rename(Región = geo) %>% 
+comparacion.ES_IC.horas %>% rename(Región = geo) %>% 
     autoplot() +
     labs(title = "Horas anuales - ES vs IC", x="Año",y="Horas") +
     scale_color_manual(values = c("Canarias" = "steelblue", "España" = "red"))
 ```
 
-
-
-Vamos a ver esta evolución comparada con la media para los países de la Unión Europea
-
-```{r}
-comparacion.ES_UE <- data %>% 
+España mantiene horas trabajadas superiores a la media europea, situándose en un nivel más alto en comparación con otros países de la UE.
+```{r evolucion-horas-españa-europa}
+comparacion.ES_UE.horas <- data %>% 
     filter(geo %in% c("ES", "EU27_2020"), item=="HW_EMP", unit=="HW") %>% 
     select(year, geo, values) %>% 
     mutate(geo = ifelse(geo == "EU27_2020", "Unión Europea", "España")) %>% 
     as_tsibble(index = year, key = geo) %>% 
     fill_gaps()
 
-comparacion.ES_UE %>% rename(Región = geo) %>% 
+comparacion.ES_UE.horas %>% rename(Región = geo) %>% 
     autoplot() +
     labs(title = "Horas anuales - ES vs UE", x = "Año", y = "Horas") +
     scale_color_manual(values = c("Unión Europea" = "green", "España" = "red"))
 ```
 
-Empezamos con ARIMA.  
-Vamos a predecir los próximos 5 años en España.
-
-```{r}
+Con el modelo ARIMA aplicado a las horas trabajadas, se estima la evolución para los próximos cinco años. El modelo se ha ajustado omitiendo 2020, dado el impacto anómalo de la pandemia, y proyecta una ligera continuidad en la tendencia a la baja, aunque con cierta variabilidad en los valores futuros.
+```{r evolucion-horas-españa-arima, results = F}
 horas.españa.omit.covid.arima <- horas.españa.omit.covid %>% 
     model(ARIMA(values))
+```
+```{r descomposicion-horas-españa}
+horas.españa.STL <- horas.españa %>% 
+    model(STL(values,robust = TRUE)) %>% 
+    components()
 
+horas.españa.STL %>% 
+    autoplot()
+```
+
+```{r evolucion-horas-españa-prediccion}
 horas.españa.omit.covid.prediccion <- horas.españa.omit.covid.arima %>%
      forecast(h="5 years")
 
@@ -1016,7 +1012,116 @@ horas.españa.omit.covid.prediccion %>%
     labs(title = "Horas trabajadas anuales en ES - Predicción futura", x = "Año", y = "Horas")
 ```
 
+```{r real-vs-arima-horas}
+# Generamos el data frame con los valores reales y ajustados del modelo
+ajuste_horas <- horas.españa.omit.covid.arima %>% 
+  augment()  # añade columnas .fitted y .resid
 
+# Gráfico de comparación entre los valores reales y el ajuste del modelo ARIMA
+ajuste_horas %>%
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = values, colour = "Real")) +
+  geom_line(aes(y = .fitted, colour = "Ajuste ARIMA"), linetype = "dashed") +
+  labs(
+    title = "Calidad ajuste del modelo ARIMA - Horas anuales ES",
+    x = "Año", y = "Horas"
+  ) +
+  scale_colour_manual(values = c("Real" = "black", "Ajuste ARIMA" = "red")) +
+  theme(legend.title = element_blank())
+```
+
+
+### Análisis de la remuneración por hora
+Pasamos después al análisis de la remuneración por hora trabajada, que muestra una trayectoria más estable y creciente en el tiempo, reflejando una recuperación progresiva tras la crisis sanitaria.
+```{r evolucion-remun-españa-data, results = F}
+remun.españa <- data %>% 
+    filter(geo == "ES", item=="D1_SAL_HW", unit=="EUR", sector=="TOTAL") %>% 
+    select(year, values) %>% 
+    as_tsibble(index = year) %>% 
+    fill_gaps()
+
+remun.españa
+```
+```{r evolucion-remun-españa}
+remun.españa %>% 
+    autoplot() +
+    labs(title = "Evolución del coste laboral por hora trabajada en España", x="Año", y="Euros / Hora")
+```
+
+En la comparación entre España y Canarias, se observan diferencias consistentes: las islas mantienen remuneraciones inferiores a la media nacional, influenciadas por su estructura productiva y los sectores predominantes.
+```{r evolucion-remun-españa-canarias}
+comparacion.ES_IC.remun <- data %>% 
+    filter(geo %in% c("ES", "ES7"), item=="D1_SAL_HW", unit=="EUR", sector=="TOTAL") %>% 
+    select(year, geo, values) %>% 
+    mutate(geo = ifelse(geo == "ES7", "Canarias", "España"),
+             # Para que salga España primero como en el de abajo y mantener coherencia 
+           geo = factor(geo, levels = c("España", "Canarias"))) %>% 
+    as_tsibble(index = year, key = geo) %>% 
+    fill_gaps()
+
+
+# CAMBIAR EL ORDEN EN EL QUE SE MUESTRA, PRIMERO ES COMO EN EL DE ABAJO
+comparacion.ES_IC.remun %>% rename(Región = geo) %>% 
+    autoplot() +
+    labs(title = "Coste laboral por hora trabajada - ES vs IC", x="Año",y="Euros / Hora") +
+    scale_color_manual(values = c("Canarias" = "steelblue", "España" = "red"))
+```
+
+En el contexto europeo, la remuneración media por hora en España es ligeramente inferior a la media de la UE, reflejando diferencias en productividad y estructura económica.
+```{r evolucion-remun-españa-europa}
+comparacion.ES_UE.remun <- data %>% 
+    filter(geo %in% c("ES", "EU27_2020"), item=="D1_SAL_HW", unit=="EUR", sector=="TOTAL") %>% 
+    select(year, geo, values) %>% 
+    mutate(geo = ifelse(geo == "EU27_2020", "Unión Europea", "España")) %>% 
+    as_tsibble(index = year, key = geo) %>% 
+    fill_gaps()
+
+comparacion.ES_UE.remun %>% rename(Región = geo) %>% 
+    autoplot() +
+    labs(title = "Coste laboral por hora trabajada - ES vs IC", x = "Año", y = "Euros / Hora") +
+    scale_color_manual(values = c("Unión Europea" = "green", "España" = "red"))
+```
+
+Finalmente, el modelo ARIMA aplicado a la remuneración muestra un ajuste más preciso que el de las horas trabajadas y proyecta un aumento moderado y constante en los próximos años, consolidando la tendencia positiva observada en el periodo reciente.
+```{r evolucion-remun-españa-arima, results = F}
+remun.españa.arima <- remun.españa %>% 
+    model(ARIMA(values))
+```
+```{r descomposicion-remun-españa}
+remun.españa.STL <- remun.españa %>% 
+    model(STL(values,robust = TRUE)) %>% 
+    components()
+
+remun.españa.STL %>% 
+    autoplot()
+```
+
+```{r evolucion-remun-españa-prediccion}
+remun.españa.prediccion <- remun.españa.arima %>%
+     forecast(h="5 years")
+
+remun.españa.prediccion %>% 
+    autoplot(remun.españa) +
+    labs(title = "Coste laboral por hora trabajada en ES - Predicción futura", x = "Año", y = "Euros / Hora")
+```
+
+```{r real-vs-arima-remun, fig.width=8}
+# Generamos el data frame con los valores reales y ajustados del modelo
+ajuste_horas <- remun.españa.arima %>% 
+  augment()  # añade columnas .fitted y .resid
+
+# Gráfico de comparación entre los valores reales y el ajuste del modelo ARIMA
+ajuste_horas %>%
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = values, colour = "Real")) +
+  geom_line(aes(y = .fitted, colour = "Ajuste ARIMA"), linetype = "dashed") +
+  labs(
+    title = "Calidad ajuste del modelo ARIMA - Coste laboral hora trabajada ES",
+    x = "Año", y = "Horas"
+  ) +
+  scale_colour_manual(values = c("Real" = "black", "Ajuste ARIMA" = "red")) +
+  theme(legend.title = element_blank())
+```
 
 ## Evaluación
 
@@ -1057,7 +1162,6 @@ IMPORTANTE: La primera vez que ejecutes este chunk desde la consola de R se te p
 gs4_deauth() 
 SeguimientoActividadesProyecto <- read_sheet('https://docs.google.com/spreadsheets/d/1W6VrcVWawxEk-b0zxrtVtOn-dtGl86BYEAWZ4qOYe0g/edit?usp=sharing') %>%
   as_tibble()  
-
 ```
 
 TOTAL HORAS TRABAJADAS EN EL PROYECTO : `r  round(sum(SeguimientoActividadesProyecto$MINUTES/60),digits=2)`
@@ -1078,8 +1182,6 @@ p <- SeguimientoActividadesProyecto%>%
   labs(x="",y="HORAS TRABAJADAS",title = "TOTAL HORAS TRABAJADAS EN EL PROYECTO POR ACTIVIDAD")
 
 ggplotly(p)
-  
- 
 ```
 
 
