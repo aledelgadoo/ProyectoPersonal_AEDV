@@ -789,7 +789,7 @@ tb_top %>% mutate(full_name = factor(full_name, levels=(unique(full_name)))) %>%
     ggplot(aes(x=full_name, y=mean_value, fill=full_name)) +
     geom_bar(stat = "identity") +
     geom_text(aes(label = round(mean_value, 1)), hjust = -0.2) +
-    labs(x="",y="Precio por hora trabajada (€)", title = "Paises con un mayor coste laboral por hora trabajada") + 
+    labs(x="",y="Precio por hora trabajada (EUR)", title = "Paises con un mayor coste laboral por hora trabajada") + 
     coord_flip() + # Cambia los ejes x <-> y
     theme(legend.position = "none") + # Quita la leyenda
     ylim(0, max(tb_top$mean_value) + 0.6)  # deja espacio a la derecha para el texto
@@ -867,7 +867,7 @@ tb %>% ggplot(aes(x = reorder(sector_name, mean_value),
     coord_flip() +
     labs(
         x = "Sector económico (NACE Rev.2)",
-        y = "Precio por hora trabajada (€)",
+        y = "Precio por hora trabajada (EUR)",
         title = "Precio medio por hora trabajada según el sector laboral",
         fill = "Sector") +
     geom_text(aes(label = round(mean_value, 1)), hjust = -0.2) +
@@ -903,7 +903,7 @@ tb <- data %>%
 tb %>%
     ggplot(aes(x=reorder(full_name, -values),y=values,fill=full_name)) +
     geom_boxplot() +
-    labs(x="", y="Coste anual (€)", title = "Coste laboral medio por persona empleada") +
+    labs(x="", y="Coste anual (EUR)", title = "Coste laboral medio por persona empleada") +
     theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
     
 ```
@@ -1000,7 +1000,8 @@ horas.españa.STL <- horas.españa %>%
     components()
 
 horas.españa.STL %>% 
-    autoplot()
+    autoplot() +
+    labs(x="Año")
 ```
 
 ```{r evolucion-horas-españa-prediccion}
@@ -1045,7 +1046,7 @@ remun.españa
 ```{r evolucion-remun-españa}
 remun.españa %>% 
     autoplot() +
-    labs(title = "Evolución del coste laboral por hora trabajada en España", x="Año", y="Euros / Hora")
+    labs(title = "Evolución del coste laboral por hora trabajada en España", x="Año", y="EUR / Hora")
 ```
 
 En la comparación entre España y Canarias, se observan diferencias consistentes: las islas mantienen remuneraciones inferiores a la media nacional, influenciadas por su estructura productiva y los sectores predominantes.
@@ -1063,7 +1064,7 @@ comparacion.ES_IC.remun <- data %>%
 # CAMBIAR EL ORDEN EN EL QUE SE MUESTRA, PRIMERO ES COMO EN EL DE ABAJO
 comparacion.ES_IC.remun %>% rename(Región = geo) %>% 
     autoplot() +
-    labs(title = "Coste laboral por hora trabajada - ES vs IC", x="Año",y="Euros / Hora") +
+    labs(title = "Coste laboral por hora trabajada - ES vs IC", x="Año",y="EUR / Hora") +
     scale_color_manual(values = c("Canarias" = "steelblue", "España" = "red"))
 ```
 
@@ -1078,7 +1079,7 @@ comparacion.ES_UE.remun <- data %>%
 
 comparacion.ES_UE.remun %>% rename(Región = geo) %>% 
     autoplot() +
-    labs(title = "Coste laboral por hora trabajada - ES vs IC", x = "Año", y = "Euros / Hora") +
+    labs(title = "Coste laboral por hora trabajada - ES vs IC", x = "Año", y = "EUR / Hora") +
     scale_color_manual(values = c("Unión Europea" = "green", "España" = "red"))
 ```
 
@@ -1093,7 +1094,8 @@ remun.españa.STL <- remun.españa %>%
     components()
 
 remun.españa.STL %>% 
-    autoplot()
+    autoplot() +
+    labs(x="Año")
 ```
 
 ```{r evolucion-remun-españa-prediccion}
@@ -1102,7 +1104,7 @@ remun.españa.prediccion <- remun.españa.arima %>%
 
 remun.españa.prediccion %>% 
     autoplot(remun.españa) +
-    labs(title = "Coste laboral por hora trabajada en ES - Predicción futura", x = "Año", y = "Euros / Hora")
+    labs(title = "Coste laboral por hora trabajada en ES - Predicción futura", x = "Año", y = "EUR / Hora")
 ```
 
 ```{r real-vs-arima-remun, fig.width=8}
@@ -1117,7 +1119,7 @@ ajuste_horas %>%
   geom_line(aes(y = .fitted, colour = "Ajuste ARIMA"), linetype = "dashed") +
   labs(
     title = "Calidad ajuste del modelo ARIMA - Coste laboral hora trabajada ES",
-    x = "Año", y = "Horas"
+    x = "Año", y = "EUR / Hora"
   ) +
   scale_colour_manual(values = c("Real" = "black", "Ajuste ARIMA" = "red")) +
   theme(legend.title = element_blank())
